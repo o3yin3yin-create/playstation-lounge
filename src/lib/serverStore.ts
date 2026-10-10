@@ -28,6 +28,7 @@ import {
 } from './mockData';
 import { defaultLoungeSettings, defaultAuthSettings, defaultThemeSettings } from './calculations';
 import { sanitizeMoney } from './financialSecurity';
+import { getSupabase, isSupabaseConfigured } from './supabaseClient';
 
 export interface LoungeServerState {
   devices: Device[];
@@ -194,6 +195,9 @@ class CentralLoungeStore {
 
   constructor() {
     this.state = this.loadInitial();
+    if (isSupabaseConfigured()) {
+      this.initSupabaseSync();
+    }
   }
 
   private hydrateState(parsed: any): LoungeServerState {
@@ -301,10 +305,77 @@ class CentralLoungeStore {
         const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
         fs.writeFileSync(tempFile, JSON.stringify(stateToSave, null, 2), 'utf-8');
         fs.renameSync(tempFile, DB_FILE);
+
+        // 4. Cloud sync to Supabase (if configured)
+        if (isSupabaseConfigured()) {
+          this.syncToSupabase(stateToSave);
+        }
       } catch (e) {
         console.error('Error persisting lounge state to file:', e);
       }
     }, 100);
+  }
+
+  private async initSupabaseSync() {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('lounge_store')
+        .select('data')
+        .eq('key', 'main_state')
+        .maybeSingle();
+
+      if (error) {
+        console.warn('[Supabase Sync] Table notice:', error.message);
+        return;
+      }
+
+      if (data && data.data && Array.isArray(data.data.devices) && data.data.devices.length > 0) {
+        console.log('[Supabase Sync] Loaded cloud database state from Supabase!');
+        const cloudState = this.hydrateState(data.data);
+        this.state = cloudState;
+        ensureStorageDirs();
+        const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
+        fs.writeFileSync(tempFile, JSON.stringify(cloudState, null, 2), 'utf-8');
+        fs.renameSync(tempFile, DB_FILE);
+        this.notify();
+      } else {
+        console.log('[Supabase Sync] Supabase table empty, uploading current local state...');
+        await supabase.from('lounge_store').upsert({
+          key: 'main_state',
+          data: this.state,
+          updated_at: new Date().toISOString(),
+        });
+      }
+    } catch (err: any) {
+      console.error('[Supabase Sync] Init failed:', err?.message || err);
+    }
+  }
+
+  private async syncToSupabase(stateToSave: LoungeServerState) {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    try {
+      // 1. Save active main state
+      await supabase.from('lounge_store').upsert({
+        key: 'main_state',
+        data: stateToSave,
+        updated_at: new Date().toISOString(),
+      });
+
+      // 2. Daily cloud backup
+      const today = new Date().toISOString().split('T')[0];
+      await supabase.from('lounge_backups').upsert({
+        day: today,
+        data: stateToSave,
+        created_at: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error('[Supabase Sync] Background sync error:', err?.message || err);
+    }
   }
 
   /**

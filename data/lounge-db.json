@@ -478,7 +478,8 @@
       "customerName": "Ahmed & Friends",
       "customerPhone": "01012345678",
       "status": "cancelled",
-      "hourlyRate": 120
+      "hourlyRate": 120,
+      "grandTotal": 0
     },
     {
       "id": "sess-2",
@@ -502,7 +503,8 @@
       "customerName": "Karim M.",
       "customerPhone": "01123456789",
       "status": "cancelled",
-      "hourlyRate": 50
+      "hourlyRate": 50,
+      "grandTotal": 0
     },
     {
       "id": "sess-3",
@@ -526,7 +528,8 @@
       "customerName": "Omar K.",
       "customerPhone": "01234567890",
       "status": "cancelled",
-      "hourlyRate": 50
+      "hourlyRate": 50,
+      "grandTotal": 0
     },
     {
       "id": "sess-4",
@@ -704,12 +707,12 @@
     "itPassword": "3Yin-3Yin"
   },
   "theme": {
-    "primaryColor": "#00E5FF",
-    "backgroundColor": "#0D1117",
-    "surfaceColor": "#161B22",
-    "cardColor": "#21262D",
-    "borderColor": "#30363D",
-    "presetName": "Neon Cyan"
+    "primaryColor": "#919191",
+    "backgroundColor": "#171717",
+    "surfaceColor": "#1E1E1E",
+    "cardColor": "#242424",
+    "borderColor": "#4D4D4D",
+    "presetName": "Custom"
   },
-  "version": 63
+  "version": 76
 }
