@@ -95,92 +95,54 @@ export const initialGames: Game[] = [
 
 export const initialDevices: Device[] = [
   {
-    id: 'dev-1',
-    name: 'Device 01',
-    type: 'VIP_ROOM',
-    status: 'busy',
-    hourlyRateSingle: 80,
-    hourlyRateMulti: 120,
-    controllersCount: 4,
-    games: ['game-1', 'game-2', 'game-3', 'game-4', 'game-5', 'game-6', 'game-7'],
-    notes: '75" 4K TV • Sound System • VIP Room'
-  },
-  {
-    id: 'dev-2',
-    name: 'Device 02',
-    type: 'PS5',
-    status: 'busy',
-    hourlyRateSingle: 50,
-    hourlyRateMulti: 70,
+    id: "dev-1789767509526",
+    name: "screen 1",
+    type: "PS4",
+    games: [
+      "game-1",
+      "game-2",
+      "game-3",
+      "game-7",
+      "game-1789767900974"
+    ],
+    notes: "55 inch",
+    status: "available",
+    hourlyRateMulti: 35,
     controllersCount: 2,
-    games: ['game-1', 'game-2', 'game-3', 'game-5', 'game-6'],
-    notes: '55" 4K 120Hz Screen'
+    hourlyRateSingle: 25
   },
   {
-    id: 'dev-3',
-    name: 'Device 03',
-    type: 'PS5',
-    status: 'available',
-    hourlyRateSingle: 50,
-    hourlyRateMulti: 70,
-    controllersCount: 4,
-    games: ['game-1', 'game-2', 'game-4', 'game-7', 'game-10'],
-    notes: '55" 4K Screen'
-  },
-  {
-    id: 'dev-4',
-    name: 'Device 04',
-    type: 'PS5',
-    status: 'available',
-    hourlyRateSingle: 50,
-    hourlyRateMulti: 70,
-    controllersCount: 2,
-    games: ['game-1', 'game-2', 'game-3', 'game-8'],
-    notes: '50" 4K Screen'
-  },
-  {
-    id: 'dev-5',
-    name: 'Device 05',
-    type: 'PS4',
-    status: 'available',
-    hourlyRateSingle: 35,
+    id: "dev-1789767546092",
+    name: "screen 2",
+    type: "VIP_ROOM",
+    games: [
+      "game-1",
+      "game-2",
+      "game-3"
+    ],
+    notes: "70 inch",
+    status: "available",
+    vipConsoleType: "PS4",
     hourlyRateMulti: 50,
     controllersCount: 2,
-    games: ['game-1', 'game-2', 'game-4', 'game-9'],
-    notes: '43" Full HD Screen'
+    hourlyRateSingle: 35
   },
   {
-    id: 'dev-6',
-    name: 'Device 06',
-    type: 'PS4',
-    status: 'busy',
-    hourlyRateSingle: 35,
-    hourlyRateMulti: 50,
-    controllersCount: 4,
-    games: ['game-1', 'game-2', 'game-7', 'game-8', 'game-10'],
-    notes: '43" Full HD Screen'
-  },
-  {
-    id: 'dev-7',
-    name: 'Device 07',
-    type: 'PS4',
-    status: 'available',
-    hourlyRateSingle: 35,
+    id: "dev-1789768860803",
+    name: "screen3",
+    type: "VIP_ROOM",
+    games: [
+      "game-1",
+      "game-2",
+      "game-3",
+      "game-4"
+    ],
+    notes: "55",
+    status: "available",
+    vipConsoleType: "PS4",
     hourlyRateMulti: 50,
     controllersCount: 2,
-    games: ['game-1', 'game-2', 'game-4'],
-    notes: '43" Full HD Screen'
-  },
-  {
-    id: 'dev-8',
-    name: 'Device 08',
-    type: 'PS4',
-    status: 'maintenance',
-    hourlyRateSingle: 35,
-    hourlyRateMulti: 50,
-    controllersCount: 2,
-    games: ['game-1', 'game-2'],
-    notes: 'Under controller maintenance'
+    hourlyRateSingle: 35
   }
 ];
 

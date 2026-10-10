@@ -127,7 +127,7 @@ interface LoungeContextType {
 
 const LoungeContext = createContext<LoungeContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'playstation_lounge_state_v3';
+const STORAGE_KEY = 'playstation_lounge_state_prod_v1';
 
 export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [devices, setDevices] = useState<Device[]>(initialDevices);

@@ -192,12 +192,21 @@ class CentralLoungeStore {
   private state: LoungeServerState;
   private subscribers: Set<(state: LoungeServerState) => void> = new Set();
   private saveTimeout: NodeJS.Timeout | null = null;
+  private initPromise: Promise<void> | null = null;
 
   constructor() {
     this.state = this.loadInitial();
     if (isSupabaseConfigured()) {
-      this.initSupabaseSync();
+      this.initPromise = this.initSupabaseSync();
     }
+  }
+
+  public async ensureInitialized(): Promise<void> {
+    if (!isSupabaseConfigured()) return;
+    if (!this.initPromise) {
+      this.initPromise = this.initSupabaseSync();
+    }
+    await this.initPromise;
   }
 
   private hydrateState(parsed: any): LoungeServerState {

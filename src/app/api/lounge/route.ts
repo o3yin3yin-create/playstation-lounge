@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: Request) {
   try {
     const auth = authenticateRequest(req);
+    await centralStore.ensureInitialized();
     const state = centralStore.getState(auth.role);
 
     return NextResponse.json(state, {
@@ -37,6 +38,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
+    await centralStore.ensureInitialized();
     // 2. Perform sanitized state update
     const updated = centralStore.updateState(body);
     return NextResponse.json({ success: true, state: centralStore.getState(auth.role) });
