@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, FileSpreadsheet, Download, Receipt, Wallet, DollarSign, Check } from 'lucide-react';
+import { X, FileSpreadsheet, Download, Receipt, Wallet, DollarSign, Check, Database, ShieldCheck } from 'lucide-react';
 import { useLounge } from '../../context/LoungeContext';
 import { exportInvoicesToCSV, exportShiftSummaryToCSV, exportExpensesToCSV } from '../../lib/exportUtils';
 
@@ -18,7 +18,7 @@ interface ExportReportsModalProps {
 }
 
 export const ExportReportsModal: React.FC<ExportReportsModalProps> = ({ onClose, stats }) => {
-  const { sessions, expenses, currentShift } = useLounge();
+  const { sessions, expenses, currentShift, downloadBackupJSON } = useLounge();
   const [downloadedReport, setDownloadedReport] = useState<string | null>(null);
 
   const handleExportInvoices = () => {
@@ -144,6 +144,45 @@ export const ExportReportsModal: React.FC<ExportReportsModalProps> = ({ onClose,
                 <Download className="w-4 h-4" />
               )}
             </div>
+          </div>
+
+          {/* Option 4: Full Database Snapshot Backup */}
+          <div 
+            onClick={() => {
+              downloadBackupJSON();
+              setDownloadedReport('backup');
+              setTimeout(() => setDownloadedReport(null), 2000);
+            }}
+            className="p-4 rounded-2xl bg-[#242424] hover:bg-[#2A2A2A] border border-[#4D4D4D]/60 hover:border-[#F25623] cursor-pointer transition-all group flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-[#1E1E1E] border border-[#4D4D4D]/40 text-blue-400 group-hover:scale-105 transition-transform">
+                <Database className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors">
+                  Full Database Backup (.JSON)
+                </div>
+                <div className="text-[11px] text-[#8C8C8C] mt-0.5">
+                  Complete offline snapshot of all screens, menu, sessions & settings
+                </div>
+              </div>
+            </div>
+            <div className="p-2 rounded-xl bg-[#1E1E1E] text-[#8C8C8C] group-hover:text-white">
+              {downloadedReport === 'backup' ? (
+                <Check className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+            </div>
+          </div>
+
+          {/* Retention Guarantee Info Banner */}
+          <div className="p-3.5 rounded-2xl bg-[#242424]/80 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2.5">
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            <span className="text-[11px] leading-relaxed">
+              <strong>Active Data Retention Policy:</strong> The server automatically retains 3 complete previous months plus the ongoing month, with daily auto-backups and monthly archiving.
+            </span>
           </div>
 
         </div>

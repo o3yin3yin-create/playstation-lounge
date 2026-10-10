@@ -33,6 +33,8 @@ RUN chown -R nextjs:nodejs /app/data
 
 USER nextjs
 
+VOLUME ["/app/data"]
+
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]

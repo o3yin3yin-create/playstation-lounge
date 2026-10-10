@@ -122,6 +122,7 @@ interface LoungeContextType {
 
   // Helpers
   getActiveSessionForDevice: (deviceId: string) => GameSession | undefined;
+  downloadBackupJSON: () => void;
 }
 
 const LoungeContext = createContext<LoungeContextType | undefined>(undefined);
@@ -853,6 +854,31 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const downloadBackupJSON = () => {
+    const backupData = {
+      devices,
+      games,
+      menuItems,
+      sessions,
+      expenses,
+      customers,
+      maintenance,
+      tournaments,
+      currentShift,
+      settings,
+      theme,
+      exportedAt: new Date().toISOString(),
+      version: 1,
+    };
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `clash-lounge-backup-${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  };
+
   return (
     <LoungeContext.Provider
       value={{
@@ -897,6 +923,7 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         resolveMaintenanceLog,
         addTournamentParticipant,
         getActiveSessionForDevice,
+        downloadBackupJSON,
       }}
     >
       {children}
