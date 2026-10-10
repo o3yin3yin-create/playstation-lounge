@@ -4,13 +4,7 @@
       "id": "dev-1789767509526",
       "name": "screen 1",
       "type": "PS4",
-      "games": [
-        "game-1",
-        "game-2",
-        "game-3",
-        "game-7",
-        "game-1789767900974"
-      ],
+      "games": [],
       "notes": "55 inch",
       "status": "available",
       "hourlyRateMulti": 35,
@@ -21,11 +15,7 @@
       "id": "dev-1789767546092",
       "name": "screen 2",
       "type": "VIP_ROOM",
-      "games": [
-        "game-1",
-        "game-2",
-        "game-3"
-      ],
+      "games": [],
       "notes": "70 inch",
       "status": "available",
       "vipConsoleType": "PS4",
@@ -37,12 +27,7 @@
       "id": "dev-1789768860803",
       "name": "screen3",
       "type": "VIP_ROOM",
-      "games": [
-        "game-1",
-        "game-2",
-        "game-3",
-        "game-4"
-      ],
+      "games": [],
       "notes": "55",
       "status": "available",
       "vipConsoleType": "PS4",
@@ -51,271 +36,8 @@
       "hourlyRateSingle": 35
     }
   ],
-  "games": [
-    {
-      "id": "game-1",
-      "genre": "Sports / Football",
-      "image": "",
-      "title": "EA SPORTS FC 25",
-      "isPopular": true,
-      "psVersion": "Both",
-      "playersCount": "1 - 4 Players"
-    },
-    {
-      "id": "game-2",
-      "genre": "Sports / Football",
-      "image": "",
-      "title": "eFootball PES 2024",
-      "isPopular": true,
-      "psVersion": "Both",
-      "playersCount": "1 - 4 Players"
-    },
-    {
-      "id": "game-3",
-      "genre": "Fighting / Action",
-      "image": "",
-      "title": "Mortal Kombat 1",
-      "isPopular": true,
-      "psVersion": "PS5",
-      "playersCount": "1 - 2 Players"
-    },
-    {
-      "id": "game-4",
-      "genre": "Open World / Action",
-      "image": "",
-      "title": "Grand Theft Auto V (GTA V)",
-      "isPopular": true,
-      "psVersion": "Both",
-      "playersCount": "1 Player"
-    },
-    {
-      "id": "game-5",
-      "genre": "Fighting",
-      "image": "",
-      "title": "Tekken 8",
-      "isPopular": true,
-      "psVersion": "PS5",
-      "playersCount": "1 - 2 Players"
-    },
-    {
-      "id": "game-6",
-      "genre": "Adventure / Action",
-      "image": "",
-      "title": "Marvel's Spider-Man 2",
-      "isPopular": true,
-      "psVersion": "PS5",
-      "playersCount": "1 Player"
-    },
-    {
-      "id": "game-7",
-      "genre": "Shooter / Multiplayer",
-      "image": "",
-      "title": "Call of Duty: Modern Warfare III",
-      "isPopular": true,
-      "psVersion": "Both",
-      "playersCount": "1 - 2 Players"
-    },
-    {
-      "id": "game-8",
-      "genre": "Co-op Adventure",
-      "image": "",
-      "title": "It Takes Two",
-      "isPopular": false,
-      "psVersion": "Both",
-      "playersCount": "2 Players"
-    },
-    {
-      "id": "game-9",
-      "genre": "Action / Adventure",
-      "image": "",
-      "title": "God of War Ragnarök",
-      "isPopular": false,
-      "psVersion": "Both",
-      "playersCount": "1 Player"
-    },
-    {
-      "id": "game-10",
-      "genre": "Sports / Vehicular",
-      "image": "",
-      "title": "Rocket League",
-      "isPopular": false,
-      "psVersion": "Both",
-      "playersCount": "1 - 4 Players"
-    },
-    {
-      "id": "game-1789767900974",
-      "genre": "Open World / Action",
-      "image": "",
-      "title": "gta 6",
-      "isPopular": false,
-      "psVersion": "PS4",
-      "playersCount": "1 - Player"
-    }
-  ],
-  "menuItems": [
-    {
-      "id": "menu-1",
-      "cost": 7,
-      "name": "Turkish Coffee",
-      "price": 25,
-      "stock": 79,
-      "category": "hot",
-      "available": true
-    },
-    {
-      "id": "menu-2",
-      "cost": 12,
-      "name": "Espresso Double",
-      "price": 35,
-      "stock": 49,
-      "category": "hot",
-      "available": true
-    },
-    {
-      "id": "menu-3",
-      "cost": 9,
-      "name": "Karak Tea with Milk",
-      "price": 30,
-      "stock": 65,
-      "category": "hot",
-      "available": true
-    },
-    {
-      "id": "menu-4",
-      "cost": 3,
-      "name": "Mint Green Tea",
-      "price": 15,
-      "stock": 120,
-      "category": "hot",
-      "available": true
-    },
-    {
-      "id": "menu-5",
-      "cost": 14,
-      "name": "Latte / Cappuccino",
-      "price": 40,
-      "stock": 44,
-      "category": "hot",
-      "available": true
-    },
-    {
-      "id": "menu-7",
-      "cost": 13,
-      "name": "Pepsi / Coca Cola Can",
-      "price": 20,
-      "stock": 150,
-      "category": "cold",
-      "available": true
-    },
-    {
-      "id": "menu-8",
-      "cost": 13,
-      "name": "7Up / Sprite Can",
-      "price": 20,
-      "stock": 90,
-      "category": "cold",
-      "available": true
-    },
-    {
-      "id": "menu-9",
-      "cost": 15,
-      "name": "Schweppes Pomegranate",
-      "price": 25,
-      "stock": 60,
-      "category": "cold",
-      "available": true
-    },
-    {
-      "id": "menu-10",
-      "cost": 12,
-      "name": "Spiro Spathis Soda",
-      "price": 20,
-      "stock": 100,
-      "category": "cold",
-      "available": true
-    },
-    {
-      "id": "menu-11",
-      "cost": 4,
-      "name": "Mineral Water",
-      "price": 10,
-      "stock": 200,
-      "category": "cold",
-      "available": true
-    },
-    {
-      "id": "menu-15",
-      "cost": 48,
-      "name": "Red Bull Energy Drink",
-      "price": 65,
-      "stock": 40,
-      "category": "energy",
-      "available": true
-    },
-    {
-      "id": "menu-16",
-      "cost": 12,
-      "name": "Sting Energy Drink",
-      "price": 20,
-      "stock": 80,
-      "category": "energy",
-      "available": true
-    },
-    {
-      "id": "menu-12",
-      "cost": 16,
-      "name": "Fresh Mango Juice",
-      "price": 40,
-      "stock": 29,
-      "category": "fresh",
-      "available": true
-    },
-    {
-      "id": "menu-13",
-      "cost": 10,
-      "name": "Lemon Mint Smoothie",
-      "price": 35,
-      "stock": 40,
-      "category": "fresh",
-      "available": true
-    },
-    {
-      "id": "menu-18",
-      "cost": 10,
-      "name": "Indomie Special Noodles",
-      "price": 25,
-      "stock": 90,
-      "category": "snack",
-      "available": true
-    },
-    {
-      "id": "menu-19",
-      "cost": 32,
-      "name": "Crispy Chicken Sandwich",
-      "price": 60,
-      "stock": 20,
-      "category": "snack",
-      "available": true
-    },
-    {
-      "id": "menu-20",
-      "cost": 13,
-      "name": "Potato Chips",
-      "price": 20,
-      "stock": 75,
-      "category": "snack",
-      "available": true
-    },
-    {
-      "id": "menu-1789767762155",
-      "cost": 20,
-      "name": "كانز بيبسي",
-      "price": 1,
-      "stock": 55,
-      "category": "cold",
-      "available": true
-    }
-  ],
+  "games": [],
+  "menuItems": [],
   "sessions": [],
   "expenses": [],
   "customers": [],
@@ -324,7 +46,7 @@
   "currentShift": {
     "id": "shift-1",
     "status": "open",
-    "openedAt": "2026-10-10T21:11:43.412Z",
+    "openedAt": "2026-10-10T21:22:16.370Z",
     "cashierName": "Admin",
     "startingCash": 0
   },
@@ -344,5 +66,5 @@
     "surfaceColor": "#1E1E1E",
     "backgroundColor": "#171717"
   },
-  "version": 77
+  "version": 78
 }

@@ -211,14 +211,14 @@ class CentralLoungeStore {
 
   private hydrateState(parsed: any): LoungeServerState {
     return {
-      devices: parsed.devices || initialDevices,
-      games: parsed.games || initialGames,
-      menuItems: parsed.menuItems || initialMenuItems,
-      sessions: parsed.sessions || initialSessions,
-      expenses: parsed.expenses || initialExpenses,
-      customers: parsed.customers || initialCustomers,
-      maintenance: parsed.maintenance || initialMaintenance,
-      tournaments: parsed.tournaments || initialTournaments,
+      devices: Array.isArray(parsed.devices) && parsed.devices.length > 0 ? parsed.devices : initialDevices,
+      games: Array.isArray(parsed.games) ? parsed.games : initialGames,
+      menuItems: Array.isArray(parsed.menuItems) ? parsed.menuItems : initialMenuItems,
+      sessions: Array.isArray(parsed.sessions) ? parsed.sessions : initialSessions,
+      expenses: Array.isArray(parsed.expenses) ? parsed.expenses : initialExpenses,
+      customers: Array.isArray(parsed.customers) ? parsed.customers : initialCustomers,
+      maintenance: Array.isArray(parsed.maintenance) ? parsed.maintenance : initialMaintenance,
+      tournaments: Array.isArray(parsed.tournaments) ? parsed.tournaments : initialTournaments,
       currentShift: parsed.currentShift || initialShift,
       settings: parsed.settings || defaultLoungeSettings,
       auth: parsed.auth || defaultAuthSettings,
@@ -458,15 +458,9 @@ class CentralLoungeStore {
       safeUpdates[key] = (updates as any)[key];
     }
 
-    // 2. Anti-Wipe Protection: Never allow client to wipe populated devices/games/menuItems
+    // 2. Anti-Wipe Protection: Never allow client to wipe populated devices
     if (this.state.devices && this.state.devices.length > 0 && Array.isArray(safeUpdates.devices) && safeUpdates.devices.length === 0) {
       delete safeUpdates.devices;
-    }
-    if (this.state.games && this.state.games.length > 0 && Array.isArray(safeUpdates.games) && safeUpdates.games.length === 0) {
-      delete safeUpdates.games;
-    }
-    if (this.state.menuItems && this.state.menuItems.length > 0 && Array.isArray(safeUpdates.menuItems) && safeUpdates.menuItems.length === 0) {
-      delete safeUpdates.menuItems;
     }
 
     // 3. Financial integrity validation on incoming devices
