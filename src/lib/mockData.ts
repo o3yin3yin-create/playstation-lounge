@@ -216,142 +216,20 @@ const fortyMinsAgo = new Date(now.getTime() - 40 * 60 * 1000).toISOString();
 const seventyMinsAgo = new Date(now.getTime() - 70 * 60 * 1000).toISOString();
 const fifteenMinsAgo = new Date(now.getTime() - 15 * 60 * 1000).toISOString();
 
-export const initialSessions: GameSession[] = [
-  {
-    id: 'sess-1',
-    deviceId: 'dev-1',
-    deviceName: 'Device 01',
-    mode: 'multi',
-    sessionType: 'open',
-    startTime: seventyMinsAgo,
-    orders: [
-      { id: 'ord-1', menuItemId: 'menu-15', name: 'Red Bull Energy Drink', price: 65, quantity: 2, timestamp: seventyMinsAgo },
-      { id: 'ord-2', menuItemId: 'menu-1', name: 'Turkish Coffee', price: 25, quantity: 1, timestamp: fortyMinsAgo }
-    ],
-    discount: 0,
-    customerName: 'Ahmed & Friends',
-    customerPhone: '01012345678',
-    status: 'active',
-    hourlyRate: 120
-  },
-  {
-    id: 'sess-2',
-    deviceId: 'dev-2',
-    deviceName: 'Device 02',
-    mode: 'single',
-    sessionType: 'fixed',
-    plannedMinutes: 60,
-    startTime: fortyMinsAgo,
-    orders: [
-      { id: 'ord-4', menuItemId: 'menu-7', name: 'Pepsi Can', price: 20, quantity: 1, timestamp: fortyMinsAgo }
-    ],
-    discount: 0,
-    customerName: 'Karim M.',
-    customerPhone: '01123456789',
-    status: 'active',
-    hourlyRate: 50
-  },
-  {
-    id: 'sess-3',
-    deviceId: 'dev-6',
-    deviceName: 'Device 06',
-    mode: 'multi',
-    sessionType: 'fixed',
-    plannedMinutes: 120,
-    startTime: fifteenMinsAgo,
-    orders: [
-      { id: 'ord-6', menuItemId: 'menu-10', name: 'Spiro Spathis Soda', price: 20, quantity: 2, timestamp: fifteenMinsAgo }
-    ],
-    discount: 0,
-    customerName: 'Omar K.',
-    customerPhone: '01234567890',
-    status: 'active',
-    hourlyRate: 50
-  },
-  {
-    id: 'sess-4',
-    deviceId: 'dev-3',
-    deviceName: 'Device 03',
-    mode: 'single',
-    sessionType: 'fixed',
-    plannedMinutes: 90,
-    startTime: new Date(now.getTime() - 210 * 60 * 1000).toISOString(),
-    endTime: new Date(now.getTime() - 120 * 60 * 1000).toISOString(),
-    orders: [
-      { id: 'ord-7', menuItemId: 'menu-1', name: 'Turkish Coffee', price: 25, quantity: 2, timestamp: new Date(now.getTime() - 180 * 60 * 1000).toISOString() },
-      { id: 'ord-8', menuItemId: 'menu-7', name: 'Pepsi Can', price: 20, quantity: 1, timestamp: new Date(now.getTime() - 140 * 60 * 1000).toISOString() }
-    ],
-    discount: 0,
-    customerName: 'Tarek S.',
-    customerPhone: '01099887766',
-    status: 'completed',
-    hourlyRate: 50,
-    totalTimeMinutes: 90,
-    totalTimeCost: 75,
-    totalOrdersCost: 70,
-    grandTotal: 145,
-    paymentMethod: 'cash'
-  },
-  {
-    id: 'sess-5',
-    deviceId: 'dev-1',
-    deviceName: 'Device 01',
-    mode: 'multi',
-    sessionType: 'open',
-    startTime: new Date(now.getTime() - 180 * 60 * 1000).toISOString(),
-    endTime: new Date(now.getTime() - 60 * 60 * 1000).toISOString(),
-    orders: [
-      { id: 'ord-9', menuItemId: 'menu-15', name: 'Red Bull Energy Drink', price: 65, quantity: 2, timestamp: new Date(now.getTime() - 120 * 60 * 1000).toISOString() },
-      { id: 'ord-10', menuItemId: 'menu-19', name: 'Crispy Chicken Sandwich', price: 60, quantity: 1, timestamp: new Date(now.getTime() - 90 * 60 * 1000).toISOString() }
-    ],
-    discount: 10,
-    customerName: 'Ziad & Karim',
-    customerPhone: '01155443322',
-    status: 'completed',
-    hourlyRate: 120,
-    totalTimeMinutes: 120,
-    totalTimeCost: 240,
-    totalOrdersCost: 190,
-    grandTotal: 420,
-    paymentMethod: 'card'
-  }
-];
+export const initialSessions: GameSession[] = [];
 
-export const initialExpenses: Expense[] = [
-  { id: 'exp-1', title: 'Beverages Wholesale Stock', category: 'supplies', amount: 850, date: new Date(Date.now() - 86400000 * 2).toISOString(), notes: 'Distributor delivery', recordedBy: 'Morning Cashier' },
-  { id: 'exp-2', title: 'PS5 Controller Maintenance', category: 'maintenance', amount: 320, date: new Date(Date.now() - 86400000).toISOString(), notes: 'Analog stick replacement', recordedBy: 'Admin' },
-  { id: 'exp-3', title: 'Lounge Electricity Bill', category: 'electricity', amount: 1450, date: new Date(Date.now() - 86400000 * 5).toISOString(), notes: 'Monthly utility bill', recordedBy: 'Manager' },
-];
+export const initialExpenses: Expense[] = [];
 
-export const initialCustomers: CustomerLoyalty[] = [
-  { id: 'cust-1', name: 'Ahmed Sherif', phone: '01012345678', points: 140, totalHours: 28, totalSpent: 2850, lastVisit: 'Today' },
-  { id: 'cust-2', name: 'Karim Mahmoud', phone: '01123456789', points: 65, totalHours: 13, totalSpent: 920, lastVisit: 'Today' },
-];
+export const initialCustomers: CustomerLoyalty[] = [];
 
-export const initialMaintenance: MaintenanceItem[] = [
-  { id: 'maint-1', deviceId: 'dev-8', deviceName: 'Device 08', itemType: 'console', issue: 'Cooling fan cleaning and thermal paste', cost: 250, status: 'pending', createdAt: '2026-09-17' },
-];
+export const initialMaintenance: MaintenanceItem[] = [];
 
-export const initialTournaments: Tournament[] = [
-  {
-    id: 'tourn-1',
-    title: 'FC 25 Weekly Clash Cup',
-    game: 'EA SPORTS FC 25',
-    date: 'Friday - 6:00 PM',
-    entryFee: 50,
-    prizePool: '1,500 EGP for 1st Place',
-    status: 'upcoming',
-    participants: [
-      { id: 'p1', name: 'Ziad T.', phone: '0105554441' },
-      { id: 'p2', name: 'Hazem S.', phone: '0114443332' }
-    ]
-  }
-];
+export const initialTournaments: Tournament[] = [];
 
 export const initialShift: Shift = {
   id: 'shift-1',
-  openedAt: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-  cashierName: 'Captain Tarek',
-  startingCash: 500,
+  openedAt: new Date().toISOString(),
+  cashierName: 'Admin',
+  startingCash: 0,
   status: 'open'
 };

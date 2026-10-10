@@ -1,12 +1,9 @@
 {
   "devices": [
     {
+      "id": "dev-1789767509526",
       "name": "screen 1",
       "type": "PS4",
-      "hourlyRateSingle": 25,
-      "hourlyRateMulti": 35,
-      "controllersCount": 2,
-      "notes": "55 inch",
       "games": [
         "game-1",
         "game-2",
@@ -14,702 +11,338 @@
         "game-7",
         "game-1789767900974"
       ],
-      "id": "dev-1789767509526",
-      "status": "available"
+      "notes": "55 inch",
+      "status": "available",
+      "hourlyRateMulti": 35,
+      "controllersCount": 2,
+      "hourlyRateSingle": 25
     },
     {
+      "id": "dev-1789767546092",
       "name": "screen 2",
       "type": "VIP_ROOM",
-      "vipConsoleType": "PS4",
-      "hourlyRateSingle": 35,
-      "hourlyRateMulti": 50,
-      "controllersCount": 2,
-      "notes": "70 inch",
       "games": [
         "game-1",
         "game-2",
         "game-3"
       ],
-      "id": "dev-1789767546092",
-      "status": "available"
-    },
-    {
-      "name": "screen3",
-      "type": "VIP_ROOM",
+      "notes": "70 inch",
+      "status": "available",
       "vipConsoleType": "PS4",
-      "hourlyRateSingle": 35,
       "hourlyRateMulti": 50,
       "controllersCount": 2,
-      "notes": "55",
+      "hourlyRateSingle": 35
+    },
+    {
+      "id": "dev-1789768860803",
+      "name": "screen3",
+      "type": "VIP_ROOM",
       "games": [
         "game-1",
         "game-2",
         "game-3",
         "game-4"
       ],
-      "id": "dev-1789768860803",
-      "status": "available"
+      "notes": "55",
+      "status": "available",
+      "vipConsoleType": "PS4",
+      "hourlyRateMulti": 50,
+      "controllersCount": 2,
+      "hourlyRateSingle": 35
     }
   ],
   "games": [
     {
       "id": "game-1",
-      "title": "EA SPORTS FC 25",
       "genre": "Sports / Football",
       "image": "",
+      "title": "EA SPORTS FC 25",
+      "isPopular": true,
       "psVersion": "Both",
-      "playersCount": "1 - 4 Players",
-      "isPopular": true
+      "playersCount": "1 - 4 Players"
     },
     {
       "id": "game-2",
-      "title": "eFootball PES 2024",
       "genre": "Sports / Football",
       "image": "",
+      "title": "eFootball PES 2024",
+      "isPopular": true,
       "psVersion": "Both",
-      "playersCount": "1 - 4 Players",
-      "isPopular": true
+      "playersCount": "1 - 4 Players"
     },
     {
       "id": "game-3",
-      "title": "Mortal Kombat 1",
       "genre": "Fighting / Action",
       "image": "",
+      "title": "Mortal Kombat 1",
+      "isPopular": true,
       "psVersion": "PS5",
-      "playersCount": "1 - 2 Players",
-      "isPopular": true
+      "playersCount": "1 - 2 Players"
     },
     {
       "id": "game-4",
-      "title": "Grand Theft Auto V (GTA V)",
       "genre": "Open World / Action",
       "image": "",
+      "title": "Grand Theft Auto V (GTA V)",
+      "isPopular": true,
       "psVersion": "Both",
-      "playersCount": "1 Player",
-      "isPopular": true
+      "playersCount": "1 Player"
     },
     {
       "id": "game-5",
-      "title": "Tekken 8",
       "genre": "Fighting",
       "image": "",
+      "title": "Tekken 8",
+      "isPopular": true,
       "psVersion": "PS5",
-      "playersCount": "1 - 2 Players",
-      "isPopular": true
+      "playersCount": "1 - 2 Players"
     },
     {
       "id": "game-6",
-      "title": "Marvel's Spider-Man 2",
       "genre": "Adventure / Action",
       "image": "",
+      "title": "Marvel's Spider-Man 2",
+      "isPopular": true,
       "psVersion": "PS5",
-      "playersCount": "1 Player",
-      "isPopular": true
+      "playersCount": "1 Player"
     },
     {
       "id": "game-7",
-      "title": "Call of Duty: Modern Warfare III",
       "genre": "Shooter / Multiplayer",
       "image": "",
+      "title": "Call of Duty: Modern Warfare III",
+      "isPopular": true,
       "psVersion": "Both",
-      "playersCount": "1 - 2 Players",
-      "isPopular": true
+      "playersCount": "1 - 2 Players"
     },
     {
       "id": "game-8",
-      "title": "It Takes Two",
       "genre": "Co-op Adventure",
       "image": "",
+      "title": "It Takes Two",
+      "isPopular": false,
       "psVersion": "Both",
-      "playersCount": "2 Players",
-      "isPopular": false
+      "playersCount": "2 Players"
     },
     {
       "id": "game-9",
-      "title": "God of War Ragnarök",
       "genre": "Action / Adventure",
       "image": "",
+      "title": "God of War Ragnarök",
+      "isPopular": false,
       "psVersion": "Both",
-      "playersCount": "1 Player",
-      "isPopular": false
+      "playersCount": "1 Player"
     },
     {
       "id": "game-10",
-      "title": "Rocket League",
       "genre": "Sports / Vehicular",
       "image": "",
+      "title": "Rocket League",
+      "isPopular": false,
       "psVersion": "Both",
-      "playersCount": "1 - 4 Players",
-      "isPopular": false
+      "playersCount": "1 - 4 Players"
     },
     {
-      "title": "gta 6",
+      "id": "game-1789767900974",
       "genre": "Open World / Action",
-      "psVersion": "PS4",
-      "playersCount": "1 - Player",
       "image": "",
+      "title": "gta 6",
       "isPopular": false,
-      "id": "game-1789767900974"
+      "psVersion": "PS4",
+      "playersCount": "1 - Player"
     }
   ],
   "menuItems": [
     {
       "id": "menu-1",
-      "name": "Turkish Coffee",
-      "category": "hot",
-      "price": 25,
       "cost": 7,
+      "name": "Turkish Coffee",
+      "price": 25,
       "stock": 79,
+      "category": "hot",
       "available": true
     },
     {
       "id": "menu-2",
-      "name": "Espresso Double",
-      "category": "hot",
-      "price": 35,
       "cost": 12,
+      "name": "Espresso Double",
+      "price": 35,
       "stock": 49,
+      "category": "hot",
       "available": true
     },
     {
       "id": "menu-3",
-      "name": "Karak Tea with Milk",
-      "category": "hot",
-      "price": 30,
       "cost": 9,
+      "name": "Karak Tea with Milk",
+      "price": 30,
       "stock": 65,
+      "category": "hot",
       "available": true
     },
     {
       "id": "menu-4",
-      "name": "Mint Green Tea",
-      "category": "hot",
-      "price": 15,
       "cost": 3,
+      "name": "Mint Green Tea",
+      "price": 15,
       "stock": 120,
+      "category": "hot",
       "available": true
     },
     {
       "id": "menu-5",
-      "name": "Latte / Cappuccino",
-      "category": "hot",
-      "price": 40,
       "cost": 14,
+      "name": "Latte / Cappuccino",
+      "price": 40,
       "stock": 44,
+      "category": "hot",
       "available": true
     },
     {
       "id": "menu-7",
-      "name": "Pepsi / Coca Cola Can",
-      "category": "cold",
-      "price": 20,
       "cost": 13,
+      "name": "Pepsi / Coca Cola Can",
+      "price": 20,
       "stock": 150,
+      "category": "cold",
       "available": true
     },
     {
       "id": "menu-8",
-      "name": "7Up / Sprite Can",
-      "category": "cold",
-      "price": 20,
       "cost": 13,
+      "name": "7Up / Sprite Can",
+      "price": 20,
       "stock": 90,
+      "category": "cold",
       "available": true
     },
     {
       "id": "menu-9",
-      "name": "Schweppes Pomegranate",
-      "category": "cold",
-      "price": 25,
       "cost": 15,
+      "name": "Schweppes Pomegranate",
+      "price": 25,
       "stock": 60,
+      "category": "cold",
       "available": true
     },
     {
       "id": "menu-10",
-      "name": "Spiro Spathis Soda",
-      "category": "cold",
-      "price": 20,
       "cost": 12,
+      "name": "Spiro Spathis Soda",
+      "price": 20,
       "stock": 100,
+      "category": "cold",
       "available": true
     },
     {
       "id": "menu-11",
-      "name": "Mineral Water",
-      "category": "cold",
-      "price": 10,
       "cost": 4,
+      "name": "Mineral Water",
+      "price": 10,
       "stock": 200,
+      "category": "cold",
       "available": true
     },
     {
       "id": "menu-15",
-      "name": "Red Bull Energy Drink",
-      "category": "energy",
-      "price": 65,
       "cost": 48,
+      "name": "Red Bull Energy Drink",
+      "price": 65,
       "stock": 40,
+      "category": "energy",
       "available": true
     },
     {
       "id": "menu-16",
-      "name": "Sting Energy Drink",
-      "category": "energy",
-      "price": 20,
       "cost": 12,
+      "name": "Sting Energy Drink",
+      "price": 20,
       "stock": 80,
+      "category": "energy",
       "available": true
     },
     {
       "id": "menu-12",
-      "name": "Fresh Mango Juice",
-      "category": "fresh",
-      "price": 40,
       "cost": 16,
+      "name": "Fresh Mango Juice",
+      "price": 40,
       "stock": 29,
+      "category": "fresh",
       "available": true
     },
     {
       "id": "menu-13",
-      "name": "Lemon Mint Smoothie",
-      "category": "fresh",
-      "price": 35,
       "cost": 10,
+      "name": "Lemon Mint Smoothie",
+      "price": 35,
       "stock": 40,
+      "category": "fresh",
       "available": true
     },
     {
       "id": "menu-18",
-      "name": "Indomie Special Noodles",
-      "category": "snack",
-      "price": 25,
       "cost": 10,
+      "name": "Indomie Special Noodles",
+      "price": 25,
       "stock": 90,
+      "category": "snack",
       "available": true
     },
     {
       "id": "menu-19",
-      "name": "Crispy Chicken Sandwich",
-      "category": "snack",
-      "price": 60,
       "cost": 32,
+      "name": "Crispy Chicken Sandwich",
+      "price": 60,
       "stock": 20,
+      "category": "snack",
       "available": true
     },
     {
       "id": "menu-20",
-      "name": "Potato Chips",
-      "category": "snack",
-      "price": 20,
       "cost": 13,
+      "name": "Potato Chips",
+      "price": 20,
       "stock": 75,
+      "category": "snack",
       "available": true
     },
     {
-      "name": "كانز بيبسي",
-      "category": "cold",
-      "price": 1,
+      "id": "menu-1789767762155",
       "cost": 20,
+      "name": "كانز بيبسي",
+      "price": 1,
       "stock": 55,
-      "available": true,
-      "id": "menu-1789767762155"
+      "category": "cold",
+      "available": true
     }
   ],
-  "sessions": [
-    {
-      "id": "sess-1791492022296",
-      "deviceId": "dev-1789767509526",
-      "deviceName": "screen 1",
-      "mode": "single",
-      "sessionType": "open",
-      "startTime": "2026-10-08T20:40:22.296Z",
-      "orders": [
-        {
-          "id": "ord-1791492073295-vrox",
-          "menuItemId": "menu-1",
-          "name": "Turkish Coffee",
-          "price": 25,
-          "quantity": 1,
-          "timestamp": "2026-10-08T20:41:13.295Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "mostafa",
-      "status": "completed",
-      "hourlyRate": 25,
-      "endTime": "2026-10-08T20:41:24.129Z",
-      "totalTimeMinutes": 1.0166666666666666,
-      "totalTimeCost": 0,
-      "totalOrdersCost": 25,
-      "grandTotal": 25,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "sess-1789768902788",
-      "deviceId": "dev-1789768860803",
-      "deviceName": "screen3",
-      "mode": "single",
-      "sessionType": "open",
-      "startTime": "2026-09-18T22:01:42.788Z",
-      "orders": [
-        {
-          "id": "ord-1789768933036-ywzz",
-          "menuItemId": "menu-2",
-          "name": "Espresso Double",
-          "price": 35,
-          "quantity": 1,
-          "timestamp": "2026-09-18T22:02:13.036Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Omar El Helbawy",
-      "status": "completed",
-      "hourlyRate": 35,
-      "endTime": "2026-09-18T22:02:58.935Z",
-      "totalTimeMinutes": 1.2666666666666666,
-      "totalTimeCost": 0,
-      "totalOrdersCost": 35,
-      "grandTotal": 35,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "sess-1789767997052",
-      "deviceId": "dev-1789767509526",
-      "deviceName": "screen 1",
-      "mode": "single",
-      "sessionType": "open",
-      "startTime": "2026-09-18T21:46:37.052Z",
-      "orders": [],
-      "discount": 0,
-      "customerName": "Cash Customer",
-      "status": "completed",
-      "hourlyRate": 25,
-      "endTime": "2026-09-18T21:47:23.253Z",
-      "totalTimeMinutes": 0.7666666666666667,
-      "totalTimeCost": 0,
-      "totalOrdersCost": 0,
-      "grandTotal": 0,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "takeaway-1789767822074",
-      "deviceId": "takeaway",
-      "deviceName": "Takeaway Cafe Order",
-      "mode": "single",
-      "sessionType": "open",
-      "startTime": "2026-09-18T21:43:42.074Z",
-      "endTime": "2026-09-18T21:43:42.074Z",
-      "orders": [
-        {
-          "id": "ord-1789767822073-nkoh",
-          "menuItemId": "menu-5",
-          "name": "Latte / Cappuccino",
-          "price": 40,
-          "quantity": 1,
-          "timestamp": "2026-09-18T21:43:42.074Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Takeaway Customer",
-      "status": "completed",
-      "hourlyRate": 0,
-      "totalTimeMinutes": 0,
-      "totalTimeCost": 0,
-      "totalOrdersCost": 40,
-      "grandTotal": 40,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "sess-1789767590119",
-      "deviceId": "dev-1789767546092",
-      "deviceName": "screen 2",
-      "mode": "single",
-      "sessionType": "fixed",
-      "plannedMinutes": 60,
-      "startTime": "2026-09-18T21:39:50.119Z",
-      "orders": [
-        {
-          "id": "ord-1789767610503-uvft",
-          "menuItemId": "menu-12",
-          "name": "Fresh Mango Juice",
-          "price": 40,
-          "quantity": 1,
-          "timestamp": "2026-09-18T21:40:10.503Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "omar",
-      "status": "completed",
-      "hourlyRate": 35,
-      "endTime": "2026-09-18T21:40:28.886Z",
-      "totalTimeMinutes": 0.6333333333333333,
-      "totalTimeCost": 0,
-      "totalOrdersCost": 40,
-      "grandTotal": 40,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "sess-1",
-      "deviceId": "dev-1",
-      "deviceName": "Device 01",
-      "mode": "multi",
-      "sessionType": "open",
-      "startTime": "2026-09-18T14:51:28.318Z",
-      "orders": [
-        {
-          "id": "ord-1",
-          "menuItemId": "menu-15",
-          "name": "Red Bull Energy Drink",
-          "price": 65,
-          "quantity": 2,
-          "timestamp": "2026-09-18T14:51:28.318Z"
-        },
-        {
-          "id": "ord-2",
-          "menuItemId": "menu-1",
-          "name": "Turkish Coffee",
-          "price": 25,
-          "quantity": 1,
-          "timestamp": "2026-09-18T15:21:28.318Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Ahmed & Friends",
-      "customerPhone": "01012345678",
-      "status": "cancelled",
-      "hourlyRate": 120
-    },
-    {
-      "id": "sess-2",
-      "deviceId": "dev-2",
-      "deviceName": "Device 02",
-      "mode": "single",
-      "sessionType": "fixed",
-      "plannedMinutes": 60,
-      "startTime": "2026-09-18T15:21:28.318Z",
-      "orders": [
-        {
-          "id": "ord-4",
-          "menuItemId": "menu-7",
-          "name": "Pepsi Can",
-          "price": 20,
-          "quantity": 1,
-          "timestamp": "2026-09-18T15:21:28.318Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Karim M.",
-      "customerPhone": "01123456789",
-      "status": "cancelled",
-      "hourlyRate": 50
-    },
-    {
-      "id": "sess-3",
-      "deviceId": "dev-6",
-      "deviceName": "Device 06",
-      "mode": "multi",
-      "sessionType": "fixed",
-      "plannedMinutes": 120,
-      "startTime": "2026-09-18T15:46:28.318Z",
-      "orders": [
-        {
-          "id": "ord-6",
-          "menuItemId": "menu-10",
-          "name": "Spiro Spathis Soda",
-          "price": 20,
-          "quantity": 2,
-          "timestamp": "2026-09-18T15:46:28.318Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Omar K.",
-      "customerPhone": "01234567890",
-      "status": "cancelled",
-      "hourlyRate": 50
-    },
-    {
-      "id": "sess-4",
-      "deviceId": "dev-3",
-      "deviceName": "Device 03",
-      "mode": "single",
-      "sessionType": "fixed",
-      "plannedMinutes": 90,
-      "startTime": "2026-09-18T12:31:28.318Z",
-      "endTime": "2026-09-18T14:01:28.318Z",
-      "orders": [
-        {
-          "id": "ord-7",
-          "menuItemId": "menu-1",
-          "name": "Turkish Coffee",
-          "price": 25,
-          "quantity": 2,
-          "timestamp": "2026-09-18T13:01:28.318Z"
-        },
-        {
-          "id": "ord-8",
-          "menuItemId": "menu-7",
-          "name": "Pepsi Can",
-          "price": 20,
-          "quantity": 1,
-          "timestamp": "2026-09-18T13:41:28.318Z"
-        }
-      ],
-      "discount": 0,
-      "customerName": "Tarek S.",
-      "customerPhone": "01099887766",
-      "status": "completed",
-      "hourlyRate": 50,
-      "totalTimeMinutes": 90,
-      "totalTimeCost": 75,
-      "totalOrdersCost": 70,
-      "grandTotal": 145,
-      "paymentMethod": "cash"
-    },
-    {
-      "id": "sess-5",
-      "deviceId": "dev-1",
-      "deviceName": "Device 01",
-      "mode": "multi",
-      "sessionType": "open",
-      "startTime": "2026-09-18T13:01:28.318Z",
-      "endTime": "2026-09-18T15:01:28.318Z",
-      "orders": [
-        {
-          "id": "ord-9",
-          "menuItemId": "menu-15",
-          "name": "Red Bull Energy Drink",
-          "price": 65,
-          "quantity": 2,
-          "timestamp": "2026-09-18T14:01:28.318Z"
-        },
-        {
-          "id": "ord-10",
-          "menuItemId": "menu-19",
-          "name": "Crispy Chicken Sandwich",
-          "price": 60,
-          "quantity": 1,
-          "timestamp": "2026-09-18T14:31:28.318Z"
-        }
-      ],
-      "discount": 10,
-      "customerName": "Ziad & Karim",
-      "customerPhone": "01155443322",
-      "status": "completed",
-      "hourlyRate": 120,
-      "totalTimeMinutes": 120,
-      "totalTimeCost": 240,
-      "totalOrdersCost": 190,
-      "grandTotal": 420,
-      "paymentMethod": "card"
-    }
-  ],
-  "expenses": [
-    {
-      "id": "exp-1",
-      "title": "Beverages Wholesale Stock",
-      "category": "supplies",
-      "amount": 850,
-      "date": "2026-09-16T16:01:28.319Z",
-      "notes": "Distributor delivery",
-      "recordedBy": "Morning Cashier"
-    },
-    {
-      "id": "exp-2",
-      "title": "PS5 Controller Maintenance",
-      "category": "maintenance",
-      "amount": 320,
-      "date": "2026-09-17T16:01:28.319Z",
-      "notes": "Analog stick replacement",
-      "recordedBy": "Admin"
-    },
-    {
-      "id": "exp-3",
-      "title": "Lounge Electricity Bill",
-      "category": "electricity",
-      "amount": 1450,
-      "date": "2026-09-13T16:01:28.319Z",
-      "notes": "Monthly utility bill",
-      "recordedBy": "Manager"
-    }
-  ],
-  "customers": [
-    {
-      "id": "cust-1",
-      "name": "Ahmed Sherif",
-      "phone": "01012345678",
-      "points": 140,
-      "totalHours": 28,
-      "totalSpent": 2850,
-      "lastVisit": "Today"
-    },
-    {
-      "id": "cust-2",
-      "name": "Karim Mahmoud",
-      "phone": "01123456789",
-      "points": 65,
-      "totalHours": 13,
-      "totalSpent": 920,
-      "lastVisit": "Today"
-    }
-  ],
-  "maintenance": [
-    {
-      "id": "maint-1",
-      "deviceId": "dev-8",
-      "deviceName": "Device 08",
-      "itemType": "console",
-      "issue": "Cooling fan cleaning and thermal paste",
-      "cost": 250,
-      "status": "pending",
-      "createdAt": "2026-09-17"
-    }
-  ],
-  "tournaments": [
-    {
-      "id": "tourn-1",
-      "title": "FC 25 Weekly Clash Cup",
-      "game": "EA SPORTS FC 25",
-      "date": "Friday - 6:00 PM",
-      "entryFee": 50,
-      "prizePool": "1,500 EGP for 1st Place",
-      "status": "upcoming",
-      "participants": [
-        {
-          "id": "p1",
-          "name": "Ziad T.",
-          "phone": "0105554441"
-        },
-        {
-          "id": "p2",
-          "name": "Hazem S.",
-          "phone": "0114443332"
-        }
-      ]
-    }
-  ],
+  "sessions": [],
+  "expenses": [],
+  "customers": [],
+  "maintenance": [],
+  "tournaments": [],
   "currentShift": {
     "id": "shift-1",
-    "openedAt": "2026-09-18T10:01:28.319Z",
-    "cashierName": "Captain Tarek",
-    "startingCash": 500,
-    "status": "open"
+    "status": "open",
+    "openedAt": "2026-10-10T21:11:43.412Z",
+    "cashierName": "Admin",
+    "startingCash": 0
   },
   "settings": {
-    "gracePeriodMinutes": 5,
-    "minimumCharge": 0
+    "minimumCharge": 0,
+    "gracePeriodMinutes": 5
   },
   "auth": {
-    "adminPassword": "admin123",
-    "itPassword": "3Yin-3Yin"
+    "itPassword": "3Yin-3Yin",
+    "adminPassword": "admin123"
   },
   "theme": {
-    "primaryColor": "#00E5FF",
-    "backgroundColor": "#0D1117",
-    "surfaceColor": "#161B22",
-    "cardColor": "#21262D",
-    "borderColor": "#30363D",
-    "presetName": "Neon Cyan"
+    "cardColor": "#242424",
+    "presetName": "Custom",
+    "borderColor": "#4D4D4D",
+    "primaryColor": "#919191",
+    "surfaceColor": "#1E1E1E",
+    "backgroundColor": "#171717"
   },
-  "version": 63
+  "version": 77
 }
