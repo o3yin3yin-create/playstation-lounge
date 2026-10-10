@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       );
     }
 
+    await centralStore.ensureInitialized();
     const verification = centralStore.verifyPassword(password);
 
     if (!verification.valid || verification.role === 'guest') {

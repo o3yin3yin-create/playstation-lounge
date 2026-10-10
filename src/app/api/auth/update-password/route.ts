@@ -33,6 +33,7 @@ export async function POST(req: Request) {
       );
     }
 
+    await centralStore.ensureInitialized();
     const updated = centralStore.updatePassword(target, newPassword.trim());
 
     if (!updated) {
