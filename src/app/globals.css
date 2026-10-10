@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Burned&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.font-clash {
+  font-family: 'Rubik Burned', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.05em;
+}
+
+:root {
+  --clash-primary: #F25623;
+  --clash-primary-glow: rgba(242, 86, 35, 0.35);
+  --clash-primary-subtle: rgba(242, 86, 35, 0.15);
+  --clash-bg: #171717;
+  --clash-surface: #1E1E1E;
+  --clash-card: #242424;
+  --clash-border: #4D4D4D;
+}
+
+@layer base {
+  body {
+    background-color: var(--clash-bg);
+    color: #DEDEDE;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* Dynamic Global Theme System Overrides */
+[class*="text-[#F25623]"],
+[class*="text-clash-orange"] {
+  color: var(--clash-primary) !important;
+}
+
+[class*="bg-[#F25623]"],
+[class*="bg-clash-orange"] {
+  background-color: var(--clash-primary) !important;
+}
+
+[class*="border-[#F25623]"],
+[class*="border-clash-orange"] {
+  border-color: var(--clash-primary) !important;
+}
+
+[class*="hover:bg-[#E04816]"]:hover,
+[class*="hover:bg-clash-orange-hover"]:hover {
+  filter: brightness(0.9);
+}
+
+[class*="hover:text-[#F25623]"]:hover {
+  color: var(--clash-primary) !important;
+}
+
+[class*="hover:border-[#F25623]"]:hover {
+  border-color: var(--clash-primary) !important;
+}
+
+[class*="focus:border-[#F25623]"]:focus {
+  border-color: var(--clash-primary) !important;
+}
+
+[class*="bg-[#171717]"],
+[class*="bg-clash-black"] {
+  background-color: var(--clash-bg) !important;
+}
+
+[class*="bg-[#1E1E1E]"],
+[class*="bg-clash-surface"] {
+  background-color: var(--clash-surface) !important;
+}
+
+[class*="bg-[#242424]"],
+[class*="bg-clash-card"] {
+  background-color: var(--clash-card) !important;
+}
+
+[class*="border-[#4D4D4D]"],
+[class*="border-clash-border"] {
+  border-color: var(--clash-border) !important;
+}
+
+[class*="shadow-[#F25623]"] {
+  box-shadow: 0 10px 25px -5px var(--clash-primary-glow) !important;
+}
+
+/* Dynamic VIP & IT Master Badges & Glow */
+.badge-vip,
+.badge-it {
+  background: var(--clash-primary) !important;
+  color: #000000 !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 14px var(--clash-primary-glow) !important;
+}
+
+[class*="border-[#FFA07A]"] {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+[class*="shadow-[0_0_8px_#F25623]"] {
+  box-shadow: 0 0 8px var(--clash-primary) !important;
+}
+
+::selection {
+  background-color: var(--clash-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Completely hide scrollbar across the entire website while preserving scrolling */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+* {
+  -ms-overflow-style: none !important; /* IE & Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+html,
+body {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+
+/* Thermal receipt print style */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #thermal-receipt,
+  #thermal-receipt * {
+    visibility: visible;
+  }
+  #thermal-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    margin: 0 auto;
+    padding: 12px;
+    background: white !important;
+    color: black !important;
+  }
+}
