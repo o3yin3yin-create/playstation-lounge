@@ -46,18 +46,25 @@ export interface LoungeServerState {
   version: number;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+import os from 'os';
+
+const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME || !!process.env.LAMBDA_TASK_ROOT;
+const DATA_DIR = isServerless ? path.join(os.tmpdir(), 'playstation-data') : path.join(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'lounge-db.json');
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const ARCHIVES_DIR = path.join(DATA_DIR, 'archives');
 
 /**
- * Ensure necessary storage directories exist
+ * Ensure necessary storage directories exist safely
  */
 function ensureStorageDirs() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
-  if (!fs.existsSync(ARCHIVES_DIR)) fs.mkdirSync(ARCHIVES_DIR, { recursive: true });
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(BACKUPS_DIR)) fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+    if (!fs.existsSync(ARCHIVES_DIR)) fs.mkdirSync(ARCHIVES_DIR, { recursive: true });
+  } catch (err) {
+    // Read-only filesystem safe fallback
+  }
 }
 
 /**
@@ -311,9 +318,13 @@ class CentralLoungeStore {
         stateToSave.expenses = activeExpenses;
 
         // 3. Atomic write using temporary file to prevent corruption
-        const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
-        fs.writeFileSync(tempFile, JSON.stringify(stateToSave, null, 2), 'utf-8');
-        fs.renameSync(tempFile, DB_FILE);
+        try {
+          const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
+          fs.writeFileSync(tempFile, JSON.stringify(stateToSave, null, 2), 'utf-8');
+          fs.renameSync(tempFile, DB_FILE);
+        } catch (fsWriteErr) {
+          // File system write skipped on serverless/read-only
+        }
 
         // 4. Cloud sync to Supabase (if configured)
         if (isSupabaseConfigured()) {
@@ -345,10 +356,12 @@ class CentralLoungeStore {
         console.log('[Supabase Sync] Loaded cloud database state from Supabase!');
         const cloudState = this.hydrateState(data.data);
         this.state = cloudState;
-        ensureStorageDirs();
-        const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
-        fs.writeFileSync(tempFile, JSON.stringify(cloudState, null, 2), 'utf-8');
-        fs.renameSync(tempFile, DB_FILE);
+        try {
+          ensureStorageDirs();
+          const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
+          fs.writeFileSync(tempFile, JSON.stringify(cloudState, null, 2), 'utf-8');
+          fs.renameSync(tempFile, DB_FILE);
+        } catch {}
         this.notify();
       } else {
         console.log('[Supabase Sync] Supabase table empty, uploading current local state...');
