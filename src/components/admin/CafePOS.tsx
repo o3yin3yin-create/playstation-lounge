@@ -6,14 +6,15 @@ import {
   Plus,
   Minus,
   Search,
-  Check
+  Check,
+  Trash2
 } from 'lucide-react';
 import { useLounge } from '../../context/LoungeContext';
 import { formatCurrency } from '../../lib/calculations';
 import { MenuItem } from '../../types';
 
 export const CafePOS: React.FC = () => {
-  const { menuItems, quickCafeSale, updateMenuItemStock, addMenuItem } = useLounge();
+  const { menuItems, quickCafeSale, addMenuItem, deleteMenuItem } = useLounge() as any;
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
@@ -24,8 +25,6 @@ export const CafePOS: React.FC = () => {
   const [newItemName, setNewItemName] = useState('');
   const [newItemCategory, setNewItemCategory] = useState<MenuItem['category']>('hot');
   const [newItemPrice, setNewItemPrice] = useState<number>(0);
-  const [newItemCost, setNewItemCost] = useState<number>(0);
-  const [newItemStock, setNewItemStock] = useState<number>(50);
 
   const categories = [
     { id: 'all', label: 'All' },
@@ -36,20 +35,16 @@ export const CafePOS: React.FC = () => {
     { id: 'snack', label: 'Snacks' },
   ];
 
-  const filteredItems = menuItems.filter((item) => {
+  const filteredItems = menuItems.filter((item: MenuItem) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
   const addToCart = (itemId: string) => {
-    const targetItem = menuItems.find((m) => m.id === itemId);
-    if (!targetItem || targetItem.stock <= 0) return;
-
     setCart((prev) => {
       const exists = prev.find((c) => c.menuItemId === itemId);
       if (exists) {
-        if (exists.quantity >= targetItem.stock) return prev;
         return prev.map((c) => (c.menuItemId === itemId ? { ...c, quantity: c.quantity + 1 } : c));
       }
       return [...prev, { menuItemId: itemId, quantity: 1 }];
@@ -65,7 +60,7 @@ export const CafePOS: React.FC = () => {
   };
 
   const cartTotal = cart.reduce((sum, c) => {
-    const item = menuItems.find((m) => m.id === c.menuItemId);
+    const item = menuItems.find((m: MenuItem) => m.id === c.menuItemId);
     return sum + (item ? item.price * c.quantity : 0);
   }, 0);
 
@@ -78,21 +73,17 @@ export const CafePOS: React.FC = () => {
 
   const handleAddNewItemSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newItemName || newItemPrice <= 0) return;
+    if (!newItemName.trim() || newItemPrice <= 0) return;
 
     addMenuItem({
-      name: newItemName,
+      name: newItemName.trim(),
       category: newItemCategory,
       price: newItemPrice,
-      cost: newItemCost,
-      stock: newItemStock,
       available: true,
     });
 
     setNewItemName('');
     setNewItemPrice(0);
-    setNewItemCost(0);
-    setNewItemStock(50);
     setShowAddItemModal(false);
   };
 
@@ -108,13 +99,13 @@ export const CafePOS: React.FC = () => {
             <span className="text-xs font-bold text-[#8C8C8C] uppercase tracking-wider">Cafe & POS</span>
           </div>
           <p className="text-xs text-[#8C8C8C] mt-1">
-            Fast takeaway sales, cafe inventory and pricing management
+            Fast takeaway sales and cafe menu management
           </p>
         </div>
 
         <button
           onClick={() => setShowAddItemModal(true)}
-          className="px-4 py-2.5 rounded-full bg-[#F25623] hover:bg-[#E04816] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#F25623]/25 transition-all active:scale-95"
+          className="px-4 py-2.5 rounded-full bg-[#F25623] hover:bg-[#E04816] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#F25623]/25 transition-all active:scale-95 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add Menu Item</span>
@@ -123,7 +114,7 @@ export const CafePOS: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Menu & Inventory Items */}
+        {/* Menu Items */}
         <div className="lg:col-span-2 space-y-4">
           
           {/* Search & Categories */}
@@ -144,7 +135,7 @@ export const CafePOS: React.FC = () => {
                 <button
                   key={c.id}
                   onClick={() => setSelectedCategory(c.id)}
-                  className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap shrink-0 transition-all ${
+                  className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                     selectedCategory === c.id
                       ? 'bg-[#F25623] text-white shadow-sm shadow-[#F25623]/30'
                       : 'bg-[#1E1E1E] border border-[#4D4D4D] text-[#8C8C8C] hover:text-white hover:bg-[#252525]'
@@ -157,73 +148,88 @@ export const CafePOS: React.FC = () => {
           </div>
 
           {/* Items Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {filteredItems.map((item) => {
-              const inCart = cart.find((c) => c.menuItemId === item.id);
-              const isOut = item.stock <= 0;
+          {filteredItems.length === 0 ? (
+            <div className="text-center py-16 bg-[#1E1E1E] rounded-3xl border border-[#4D4D4D]/60 p-8 space-y-3">
+              <Coffee className="w-10 h-10 text-[#8C8C8C] mx-auto opacity-50" />
+              <div className="text-white font-bold text-sm">No menu items found</div>
+              <p className="text-xs text-[#8C8C8C]">
+                Click &quot;Add Menu Item&quot; to add tea, coffee, cold drinks, or snacks.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {filteredItems.map((item: MenuItem) => {
+                const inCart = cart.find((c) => c.menuItemId === item.id);
 
-              return (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-2xl bg-[#1E1E1E] border border-[#4D4D4D] shadow-lg flex flex-col justify-between hover:border-[#8C8C8C] transition-all"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-bold text-sm text-white">{item.name}</h3>
-                      <div className="text-xs text-[#F25623] mt-1 font-black">
+                return (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl bg-[#1E1E1E] border border-[#4D4D4D] shadow-lg flex flex-col justify-between hover:border-[#8C8C8C] transition-all"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-bold text-sm text-white">{item.name}</h3>
+                        <span className="text-[10px] text-[#8C8C8C] uppercase font-semibold">
+                          {item.category === 'hot'
+                            ? 'Hot Beverage'
+                            : item.category === 'cold'
+                            ? 'Cold Drink'
+                            : item.category === 'fresh'
+                            ? 'Fresh Juice'
+                            : item.category === 'energy'
+                            ? 'Energy Drink'
+                            : 'Snack'}
+                        </span>
+                      </div>
+
+                      <div className="text-sm text-[#F25623] font-black">
                         {formatCurrency(item.price)}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs text-[#8C8C8C] bg-[#242424] px-2.5 py-1 rounded-xl border border-[#4D4D4D]/60">
-                      <span>Stock:</span>
-                      <span className={`font-bold ${isOut ? 'text-rose-500' : 'text-white'}`}>{item.stock}</span>
-                      <button
-                        onClick={() => updateMenuItemStock(item.id, item.stock + 5)}
-                        className="text-[#F25623] hover:text-[#FFA07A] font-bold ml-1"
-                        title="Add 5 to stock"
-                      >
-                        +5
-                      </button>
+                    <div className="mt-4 pt-3 border-t border-[#4D4D4D]/50 flex items-center justify-between">
+                      {deleteMenuItem && (
+                        <button
+                          onClick={() => deleteMenuItem(item.id)}
+                          className="text-[#8C8C8C] hover:text-rose-400 p-1 text-xs transition-colors"
+                          title="Delete item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      <div className="ml-auto">
+                        {inCart ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => removeFromCart(item.id)}
+                              className="w-7 h-7 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] border border-[#4D4D4D] flex items-center justify-center text-[#DEDEDE] cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="font-bold text-xs text-white px-1">{inCart.quantity}</span>
+                            <button
+                              onClick={() => addToCart(item.id)}
+                              className="w-7 h-7 rounded-lg bg-[#F25623] hover:bg-[#E04816] flex items-center justify-center text-white shadow-sm cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => addToCart(item.id)}
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors bg-[#242424] hover:bg-[#F25623] hover:text-white text-[#DEDEDE] border border-[#4D4D4D] cursor-pointer flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Add to Order</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="mt-4 pt-3 border-t border-[#4D4D4D]/50 flex items-center justify-end">
-                    {inCart ? (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => removeFromCart(item.id)}
-                          className="w-7 h-7 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] border border-[#4D4D4D] flex items-center justify-center text-[#DEDEDE]"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="font-bold text-xs text-white px-1">{inCart.quantity}</span>
-                        <button
-                          disabled={inCart.quantity >= item.stock}
-                          onClick={() => addToCart(item.id)}
-                          className="w-7 h-7 rounded-lg bg-[#F25623] hover:bg-[#E04816] flex items-center justify-center text-white disabled:opacity-30 shadow-sm"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        disabled={isOut}
-                        onClick={() => addToCart(item.id)}
-                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-colors ${
-                          isOut
-                            ? 'bg-[#242424] text-[#8C8C8C] cursor-not-allowed border border-[#4D4D4D]/40'
-                            : 'bg-[#242424] hover:bg-[#F25623] hover:text-white text-[#DEDEDE] border border-[#4D4D4D]'
-                        }`}
-                      >
-                        Add to Order
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Takeaway Cart Panel */}
@@ -253,29 +259,29 @@ export const CafePOS: React.FC = () => {
               </div>
             ) : (
               cart.map((c) => {
-                const item = menuItems.find((m) => m.id === c.menuItemId);
+                const item = menuItems.find((m: MenuItem) => m.id === c.menuItemId);
                 if (!item) return null;
                 return (
                   <div
                     key={c.menuItemId}
-                    className="p-3 rounded-2xl bg-[#242424] border border-[#4D4D4D]/60 flex items-center justify-between text-xs"
+                    className="flex items-center justify-between p-3 rounded-2xl bg-[#242424] border border-[#4D4D4D]/60 text-xs"
                   >
                     <div>
                       <div className="font-bold text-white">{item.name}</div>
-                      <div className="text-[#F25623] font-semibold mt-0.5">{formatCurrency(item.price * c.quantity)}</div>
+                      <div className="text-[11px] text-[#F25623]">{formatCurrency(item.price * c.quantity)}</div>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="w-6 h-6 rounded-lg bg-[#1E1E1E] border border-[#4D4D4D] text-[#8C8C8C] hover:text-white flex items-center justify-center"
+                        onClick={() => removeFromCart(c.menuItemId)}
+                        className="w-6 h-6 rounded-lg bg-[#1E1E1E] border border-[#4D4D4D] text-[#8C8C8C] hover:text-white flex items-center justify-center cursor-pointer"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="font-bold text-white">{c.quantity}</span>
                       <button
-                        disabled={c.quantity >= item.stock}
-                        onClick={() => addToCart(item.id)}
-                        className="w-6 h-6 rounded-lg bg-[#F25623] hover:bg-[#E04816] text-white flex items-center justify-center disabled:opacity-30"
+                        onClick={() => addToCart(c.menuItemId)}
+                        className="w-6 h-6 rounded-lg bg-[#F25623] hover:bg-[#E04816] text-white flex items-center justify-center cursor-pointer"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
@@ -289,15 +295,15 @@ export const CafePOS: React.FC = () => {
           <div className="pt-3 border-t border-[#4D4D4D]/60 space-y-3">
             <div className="flex justify-between items-center text-sm font-black text-white">
               <span>Total:</span>
-              <span className="text-[#F25623] text-base">{formatCurrency(cartTotal)}</span>
+              <span className="text-[#F25623] text-lg">{formatCurrency(cartTotal)}</span>
             </div>
 
             <button
-              disabled={cart.length === 0}
               onClick={handleCheckoutTakeaway}
-              className={`w-full py-3 rounded-full text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md ${
+              disabled={cart.length === 0}
+              className={`w-full py-3 rounded-2xl font-black text-xs flex items-center justify-center gap-1.5 shadow-lg transition-all ${
                 cart.length > 0
-                  ? 'bg-[#F25623] hover:bg-[#E04816] text-white shadow-[#F25623]/25 active:scale-98'
+                  ? 'bg-[#F25623] hover:bg-[#E04816] text-white shadow-[#F25623]/25 active:scale-98 cursor-pointer'
                   : 'bg-[#242424] text-[#8C8C8C] cursor-not-allowed border border-[#4D4D4D]/40'
               }`}
             >
@@ -317,90 +323,64 @@ export const CafePOS: React.FC = () => {
               <h3 className="text-base font-bold text-white">Add New Menu Item</h3>
               <button
                 onClick={() => setShowAddItemModal(false)}
-                className="text-[#8C8C8C] hover:text-white p-1"
+                className="text-[#8C8C8C] hover:text-white p-1 cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleAddNewItemSubmit} className="space-y-3">
+            <form onSubmit={handleAddNewItemSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#DEDEDE] mb-1">Item Name:</label>
+                <label className="block text-xs font-semibold text-[#DEDEDE] mb-1.5">Item Name (اسم الصنف):</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mint Tea, Club Sandwich..."
+                  placeholder="e.g. شاي، قهوة تركي، بيبسي، كابتشينو..."
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
                   className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-xs placeholder-[#8C8C8C] focus:outline-none focus:border-[#F25623]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-semibold text-[#DEDEDE] mb-1">Category:</label>
-                  <select
-                    value={newItemCategory}
-                    onChange={(e) => setNewItemCategory(e.target.value as MenuItem['category'])}
-                    className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-xs focus:outline-none focus:border-[#F25623]"
-                  >
-                    <option value="hot">Hot</option>
-                    <option value="cold">Cold</option>
-                    <option value="fresh">Juices</option>
-                    <option value="energy">Energy</option>
-                    <option value="snack">Snacks</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#DEDEDE] mb-1">Initial Stock:</label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={newItemStock}
-                    onChange={(e) => setNewItemStock(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-xs focus:outline-none focus:border-[#F25623]"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#DEDEDE] mb-1.5">Category (القسم / الفئة):</label>
+                <select
+                  value={newItemCategory}
+                  onChange={(e) => setNewItemCategory(e.target.value as MenuItem['category'])}
+                  className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-xs focus:outline-none focus:border-[#F25623]"
+                >
+                  <option value="hot">مشروبات ساخنة (Hot)</option>
+                  <option value="cold">مشروبات باردة (Cold)</option>
+                  <option value="fresh">عصائر فريش (Fresh)</option>
+                  <option value="energy">مشروبات طاقة (Energy)</option>
+                  <option value="snack">سناكس ومأكولات (Snacks)</option>
+                </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs font-semibold text-[#DEDEDE] mb-1">Selling Price (EGP):</label>
-                  <input
-                    type="number"
-                    min="1"
-                    required
-                    value={newItemPrice || ''}
-                    onChange={(e) => setNewItemPrice(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-sm font-bold focus:outline-none focus:border-[#F25623]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#DEDEDE] mb-1">Cost (EGP):</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newItemCost || ''}
-                    onChange={(e) => setNewItemCost(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-sm focus:outline-none focus:border-[#F25623]"
-                  />
-                </div>
+              <div>
+                <label className="block text-xs font-semibold text-[#DEDEDE] mb-1.5">Selling Price in EGP (سعر البيع للزبون):</label>
+                <input
+                  type="number"
+                  min="1"
+                  required
+                  placeholder="مثال: 15"
+                  value={newItemPrice || ''}
+                  onChange={(e) => setNewItemPrice(Number(e.target.value))}
+                  className="w-full p-2.5 rounded-xl bg-[#242424] border border-[#4D4D4D] text-white text-sm font-bold focus:outline-none focus:border-[#F25623]"
+                />
               </div>
 
               <div className="flex gap-2 pt-3">
                 <button
                   type="button"
                   onClick={() => setShowAddItemModal(false)}
-                  className="flex-1 py-2.5 rounded-full border border-[#4D4D4D] bg-[#242424] text-[#8C8C8C] hover:text-white text-xs font-semibold"
+                  className="flex-1 py-2.5 rounded-full border border-[#4D4D4D] bg-[#242424] text-[#8C8C8C] hover:text-white text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 rounded-full bg-[#F25623] hover:bg-[#E04816] text-white text-xs font-bold shadow-md shadow-[#F25623]/25"
+                  className="flex-1 py-2.5 rounded-full bg-[#F25623] hover:bg-[#E04816] text-white text-xs font-bold shadow-md shadow-[#F25623]/25 cursor-pointer"
                 >
                   Save Item
                 </button>

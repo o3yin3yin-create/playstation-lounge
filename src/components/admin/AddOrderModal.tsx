@@ -32,7 +32,6 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ session, onClose }
   });
 
   const handleAddItem = (item: MenuItem) => {
-    if (item.stock <= 0) return;
     addOrderToSession(session.id, item.id, 1);
   };
 
@@ -112,39 +111,28 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ session, onClose }
 
         {/* Items List */}
         <div className="px-6 py-3 overflow-y-auto flex-1 divide-y divide-[#4D4D4D]/40">
-          {filteredItems.map((item) => {
-            const isOutOfStock = item.stock <= 0;
-            return (
-              <div
-                key={item.id}
-                className="py-3 flex items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="text-xs font-semibold text-white">{item.name}</div>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs font-bold text-[#F25623]">{formatCurrency(item.price)}</span>
-                    <span className="text-[11px] text-[#8C8C8C]">
-                      {isOutOfStock ? 'Out of stock' : `Stock: ${item.stock}`}
-                    </span>
-                  </div>
+          {filteredItems.map((item) => (
+            <div
+              key={item.id}
+              className="py-3 flex items-center justify-between gap-4"
+            >
+              <div>
+                <div className="text-xs font-semibold text-white">{item.name}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xs font-bold text-[#F25623]">{formatCurrency(item.price)}</span>
                 </div>
-
-                <button
-                  type="button"
-                  disabled={isOutOfStock}
-                  onClick={() => handleAddItem(item)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition-colors ${
-                    isOutOfStock
-                      ? 'bg-[#242424] text-[#8C8C8C]/40 border border-[#4D4D4D]/40 cursor-not-allowed'
-                      : 'bg-[#242424] hover:bg-[#F25623] hover:text-white text-[#DEDEDE] border border-[#4D4D4D]'
-                  }`}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add</span>
-                </button>
               </div>
-            );
-          })}
+
+              <button
+                type="button"
+                onClick={() => handleAddItem(item)}
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 transition-colors bg-[#242424] hover:bg-[#F25623] hover:text-white text-[#DEDEDE] border border-[#4D4D4D] cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add</span>
+              </button>
+            </div>
+          ))}
         </div>
 
         {/* Footer */}

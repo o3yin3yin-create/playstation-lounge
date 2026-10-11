@@ -113,8 +113,9 @@ interface LoungeContextType {
   deleteDevice: (deviceId: string) => void;
   addGame: (game: Omit<Game, 'id'>) => void;
   deleteGame: (gameId: string) => void;
-  updateMenuItemStock: (menuItemId: string, newStock: number) => void;
   addMenuItem: (item: Omit<MenuItem, 'id'>) => void;
+  deleteMenuItem: (itemId: string) => void;
+  updateMenuItemStock?: (menuItemId: string, newStock: number) => void;
   
   // Shift
   closeShift: (actualClosingCash: number) => void;
@@ -761,10 +762,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
-    setMenuItems((prev) =>
-      prev.map((m) => (m.id === menuItemId ? { ...m, stock: Math.max(0, m.stock - safeQty) } : m))
-    );
-
     playSound('beep');
   };
 
@@ -772,14 +769,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSessions((prev) =>
       prev.map((s) => {
         if (s.id === sessionId) {
-          const target = s.orders.find((o) => o.id === orderItemId);
-          if (target) {
-            setMenuItems((mPrev) =>
-              mPrev.map((m) =>
-                m.id === target.menuItemId ? { ...m, stock: m.stock + target.quantity } : m
-              )
-            );
-          }
           return {
             ...s,
             orders: s.orders.filter((o) => o.id !== orderItemId),
@@ -839,12 +828,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           timestamp: new Date().toISOString(),
         });
         total += itemPrice * safeQty;
-
-        setMenuItems((prev) =>
-          prev.map((menu) =>
-            menu.id === it.menuItemId ? { ...menu, stock: Math.max(0, menu.stock - safeQty) } : menu
-          )
-        );
       }
     });
 
@@ -952,23 +935,23 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
-  const updateMenuItemStock = (menuItemId: string, newStock: number) => {
-    const safeStock = Math.max(0, Math.floor(newStock || 0));
-    setMenuItems((prev) =>
-      prev.map((m) => (m.id === menuItemId ? { ...m, stock: safeStock } : m))
-    );
-  };
-
   const addMenuItem = (item: Omit<MenuItem, 'id'>) => {
     const newItem: MenuItem = {
-      ...item,
-      name: sanitizeText(item.name, 80),
-      price: sanitizeMoney(item.price, 0, 50_000),
-      cost: sanitizeMoney(item.cost, 0, 50_000),
-      stock: Math.max(0, Math.floor(item.stock || 0)),
       id: `menu-${Date.now()}`,
+      name: sanitizeText(item.name, 80),
+      category: item.category,
+      price: sanitizeMoney(item.price, 0, 50_000),
+      available: true,
     };
     setMenuItems((prev) => [...prev, newItem]);
+  };
+
+  const deleteMenuItem = (itemId: string) => {
+    setMenuItems((prev) => prev.filter((m) => m.id !== itemId));
+  };
+
+  const updateMenuItemStock = () => {
+    // No-op: stock management is disabled
   };
 
   const closeShift = (actualClosingCash: number) => {
@@ -1200,8 +1183,9 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         deleteDevice,
         addGame,
         deleteGame,
-        updateMenuItemStock,
         addMenuItem,
+        deleteMenuItem,
+        updateMenuItemStock,
         closeShift,
         openNewShift,
         addMaintenanceLog,

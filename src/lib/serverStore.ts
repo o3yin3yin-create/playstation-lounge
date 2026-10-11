@@ -494,8 +494,6 @@ class CentralLoungeStore {
       safeUpdates.menuItems = safeUpdates.menuItems.map((m: MenuItem) => ({
         ...m,
         price: sanitizeMoney(m.price, 0, 50_000),
-        cost: sanitizeMoney(m.cost, 0, 50_000),
-        stock: Math.max(0, Math.floor(m.stock || 0)),
       }));
     }
 

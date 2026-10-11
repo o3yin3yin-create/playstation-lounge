@@ -31,10 +31,10 @@ export interface MenuItem {
   name: string;
   category: 'hot' | 'cold' | 'fresh' | 'energy' | 'snack';
   price: number;
-  cost: number;
-  stock: number;
+  cost?: number;
+  stock?: number;
   image?: string;
-  available: boolean;
+  available?: boolean;
 }
 
 export interface SessionOrderItem {
