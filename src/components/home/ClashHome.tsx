@@ -8,7 +8,10 @@ import {
   Sparkles,
   ShieldCheck,
   Lock,
-  Palette
+  Palette,
+  Cloud,
+  CloudOff,
+  RefreshCw
 } from 'lucide-react';
 import { useLounge } from '../../context/LoungeContext';
 import { Device, GameSession } from '../../types';
@@ -23,7 +26,7 @@ import { ITControlModal } from '../admin/ITControlModal';
 import { ThemeCustomizerModal } from '../admin/ThemeCustomizerModal';
 
 export const ClashHome: React.FC = () => {
-  const { devices, sessions, settings, currentRole, logout } = useLounge();
+  const { devices, sessions, settings, currentRole, logout, syncStatus, forceSync } = useLounge();
 
   // Selected device for full details modal
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
@@ -73,6 +76,36 @@ export const ClashHome: React.FC = () => {
               <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#242424] border border-[#4D4D4D] text-[#8C8C8C]">
                 Admin
               </span>
+            )}
+
+            {/* Offline-First Cloud Sync Indicator */}
+            {syncStatus === 'synced' && (
+              <span
+                className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1"
+                title="متصل سحابياً مع قاعدة بيانات Supabase - كل البيانات محفوظة 100%"
+              >
+                <Cloud className="w-2.5 h-2.5 text-emerald-400" />
+                <span>سحابي</span>
+              </span>
+            )}
+            {syncStatus === 'syncing' && (
+              <span
+                className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center gap-1"
+                title="جاري المزامنة مع السيرفر السحابي..."
+              >
+                <RefreshCw className="w-2.5 h-2.5 text-amber-400 animate-spin" />
+                <span>مزامنة...</span>
+              </span>
+            )}
+            {syncStatus === 'offline' && (
+              <button
+                onClick={() => forceSync()}
+                className="text-[9px] font-medium px-2 py-0.5 rounded-full bg-zinc-800/80 border border-zinc-600/60 text-zinc-300 flex items-center gap-1 hover:bg-zinc-700 transition-colors cursor-pointer"
+                title="يعمل محلياً (Offline-First) - كل الفواتير والسيشنز محفوظة على جهازك - اضغط للمزامنة يدوياً"
+              >
+                <CloudOff className="w-2.5 h-2.5 text-zinc-400" />
+                <span>أوفلاين</span>
+              </button>
             )}
           </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import {
   Device,
   Game,
@@ -48,6 +48,8 @@ import {
   sanitizePhone
 } from '../lib/financialSecurity';
 
+export type SyncStatus = 'synced' | 'syncing' | 'offline';
+
 interface LoungeContextType {
   devices: Device[];
   games: Game[];
@@ -73,6 +75,11 @@ interface LoungeContextType {
   updateAdminPassword: (newPassword: string) => Promise<boolean>;
   updateITPassword: (newPassword: string) => Promise<boolean>;
   
+  // Offline-First & Sync Status
+  syncStatus: SyncStatus;
+  isOnline: boolean;
+  forceSync: () => Promise<void>;
+
   // Actions
   startSession: (params: {
     deviceId: string;
@@ -128,6 +135,9 @@ interface LoungeContextType {
 const LoungeContext = createContext<LoungeContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'playstation_lounge_state_prod_v1';
+const COMPLETED_SESSIONS_KEY = 'clash_locally_completed_sessions_v1';
+const AUTH_TOKEN_KEY = 'clash_auth_token';
+const AUTH_ROLE_KEY = 'clash_auth_role';
 
 export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [devices, setDevices] = useState<Device[]>(initialDevices);
@@ -145,143 +155,152 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [currentRole, setCurrentRole] = useState<UserRole>('guest');
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Sync state & network status
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
+  const [isOnline, setIsOnline] = useState<boolean>(true);
+
+  // Refs for race-condition prevention and stomping defense
   const isIncomingUpdate = useRef(false);
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
+  const completedSessionsRef = useRef<Set<string>>(new Set());
+  const hasPendingChangesRef = useRef(false);
+  const lastMutationTimeRef = useRef(0);
+  const syncDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Validate session against server on mount
+  // Keep a live reference to current sessions for synchronous checks
+  const sessionsRef = useRef<GameSession[]>(initialSessions);
   useEffect(() => {
-    fetch('/api/auth/me')
+    sessionsRef.current = sessions;
+  }, [sessions]);
+
+  // Keep a live reference to current devices
+  const devicesRef = useRef<Device[]>(initialDevices);
+  useEffect(() => {
+    devicesRef.current = devices;
+  }, [devices]);
+
+  // 1. Initial Local-First Eager Load (Synchronous from Disk before any Network call)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    setIsOnline(navigator.onLine);
+
+    // Read stored completed sessions set to prevent resurrection of closed sessions
+    try {
+      const savedCompleted = localStorage.getItem(COMPLETED_SESSIONS_KEY);
+      if (savedCompleted) {
+        const ids: string[] = JSON.parse(savedCompleted);
+        if (Array.isArray(ids)) {
+          ids.forEach((id) => completedSessionsRef.current.add(id));
+        }
+      }
+    } catch {}
+
+    // Read cached state immediately
+    try {
+      const cached = localStorage.getItem(STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed === 'object') {
+          if (Array.isArray(parsed.devices) && parsed.devices.length > 0) setDevices(parsed.devices);
+          if (Array.isArray(parsed.games)) setGames(parsed.games);
+          if (Array.isArray(parsed.menuItems)) setMenuItems(parsed.menuItems);
+          if (Array.isArray(parsed.sessions)) {
+            // Apply completed sessions filter
+            const safeSessions = parsed.sessions.map((s: GameSession) => {
+              if (completedSessionsRef.current.has(s.id) && s.status === 'active') {
+                return { ...s, status: 'completed' as const };
+              }
+              return s;
+            });
+            setSessions(safeSessions);
+          }
+          if (Array.isArray(parsed.expenses)) setExpenses(parsed.expenses);
+          if (Array.isArray(parsed.customers)) setCustomers(parsed.customers);
+          if (Array.isArray(parsed.maintenance)) setMaintenance(parsed.maintenance);
+          if (Array.isArray(parsed.tournaments)) setTournaments(parsed.tournaments);
+          if (parsed.currentShift) setCurrentShift(parsed.currentShift);
+          if (parsed.settings) setSettings(parsed.settings);
+          if (parsed.auth) setAuthSettings(parsed.auth);
+          if (parsed.theme) {
+            setTheme(parsed.theme);
+            applyThemeToDocument(parsed.theme);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[Offline-First] Local cache parse warning:', e);
+    }
+
+    // Read cached role
+    try {
+      const savedRole = localStorage.getItem(AUTH_ROLE_KEY) as UserRole;
+      if (savedRole === 'admin' || savedRole === 'it') {
+        setCurrentRole(savedRole);
+      }
+    } catch {}
+
+    setIsLoaded(true);
+
+    // Listen to network status
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (hasPendingChangesRef.current) {
+        debouncedPushToServer();
+      }
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSyncStatus('offline');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // 2. Validate session against server on mount
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    fetch('/api/auth/me', { headers, credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (data.authenticated && (data.role === 'admin' || data.role === 'it')) {
           setCurrentRole(data.role);
           try {
-            localStorage.setItem('clash_auth_role', data.role);
+            localStorage.setItem(AUTH_ROLE_KEY, data.role);
           } catch {}
         } else {
-          setCurrentRole('guest');
-          try {
-            localStorage.removeItem('clash_auth_role');
-          } catch {}
+          // If server says guest, but we are offline, preserve saved role
+          if (navigator.onLine) {
+            setCurrentRole('guest');
+            try {
+              localStorage.removeItem(AUTH_ROLE_KEY);
+              localStorage.removeItem(AUTH_TOKEN_KEY);
+            } catch {}
+          }
         }
       })
       .catch(() => {
-        // Fallback to local session if offline
-        try {
-          const savedRole = localStorage.getItem('clash_auth_role') as UserRole;
-          if (savedRole === 'admin' || savedRole === 'it') {
-            setCurrentRole(savedRole);
-          }
-        } catch {}
+        // Network offline: preserve local role
       });
   }, []);
 
-  // Sync theme variables to DOM whenever theme changes
+  // 3. Theme sync to DOM
   useEffect(() => {
     applyThemeToDocument(theme);
   }, [theme]);
 
-  // Initialize Real-time synchronization
-  useEffect(() => {
-    let eventSource: EventSource | null = null;
-    let pollInterval: NodeJS.Timeout | null = null;
-
-    const applyState = (data: any) => {
-      if (!data || typeof data !== 'object') return;
-      isIncomingUpdate.current = true;
-      if (Array.isArray(data.devices)) setDevices(data.devices);
-      if (Array.isArray(data.games)) setGames(data.games);
-      if (Array.isArray(data.menuItems)) setMenuItems(data.menuItems);
-      if (Array.isArray(data.sessions)) setSessions(data.sessions);
-      if (Array.isArray(data.expenses)) setExpenses(data.expenses);
-      if (Array.isArray(data.customers)) setCustomers(data.customers);
-      if (Array.isArray(data.maintenance)) setMaintenance(data.maintenance);
-      if (Array.isArray(data.tournaments)) setTournaments(data.tournaments);
-      if (data.currentShift) setCurrentShift(data.currentShift);
-      if (data.settings) setSettings(data.settings);
-      if (data.auth) setAuthSettings(data.auth);
-      if (data.theme) {
-        setTheme(data.theme);
-        applyThemeToDocument(data.theme);
-      }
-      setIsLoaded(true);
-
-      // Cache locally
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      } catch {}
-    };
-
-    // 1. Same-computer BroadcastChannel for 0ms instant tab synchronization
-    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-      try {
-        const bc = new BroadcastChannel('clash_realtime_sync');
-        bc.onmessage = (event) => {
-          if (event.data) {
-            applyState(event.data);
-          }
-        };
-        broadcastChannelRef.current = bc;
-      } catch {}
-    }
-
-    // 2. Fetch current central state from backend server
-    fetch('/api/lounge')
-      .then((res) => res.json())
-      .then((data) => {
-        applyState(data);
-      })
-      .catch((err) => {
-        console.warn('Initial server fetch failed, loading local cache:', err);
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) applyState(JSON.parse(saved));
-        } catch {}
-        setIsLoaded(true);
-      });
-
-    // 3. Real-Time Server-Sent Events (SSE) for multi-device cross-network live sync
-    try {
-      eventSource = new EventSource('/api/lounge/events');
-      eventSource.onmessage = (event) => {
-        try {
-          const parsed = JSON.parse(event.data);
-          applyState(parsed);
-        } catch {}
-      };
-    } catch (e) {
-      console.error('SSE initialization error:', e);
-    }
-
-    // 4. Background heartbeat polling fallback every 4 seconds
-    pollInterval = setInterval(() => {
-      fetch('/api/lounge')
-        .then((res) => res.json())
-        .then((data) => {
-          applyState(data);
-        })
-        .catch(() => {});
-    }, 4000);
-
-    return () => {
-      if (eventSource) eventSource.close();
-      if (pollInterval) clearInterval(pollInterval);
-      if (broadcastChannelRef.current) {
-        broadcastChannelRef.current.close();
-        broadcastChannelRef.current = null;
-      }
-    };
-  }, []);
-
-  // Save changes to Central Server and Broadcast to other tabs
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (isIncomingUpdate.current) {
-      isIncomingUpdate.current = false;
-      return;
-    }
-
-    const payload = {
+  // 4. Construct live state payload
+  const getCurrentPayload = useCallback(() => {
+    return {
       devices,
       games,
       menuItems,
@@ -294,33 +313,283 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       settings,
       auth: authSettings,
       theme,
+      _updatedAt: Date.now(),
     };
+  }, [devices, games, menuItems, sessions, expenses, customers, maintenance, tournaments, currentShift, settings, authSettings, theme]);
 
-    // 1. Broadcast locally to all open browser tabs
+  // 5. Server Push Engine (With Retry & Offline Support)
+  const pushToServer = useCallback(async (customPayload?: any) => {
+    const payload = customPayload || getCurrentPayload();
+    if (!navigator.onLine) {
+      setSyncStatus('offline');
+      return;
+    }
+
+    try {
+      setSyncStatus('syncing');
+      const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/lounge', {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSyncStatus('synced');
+        hasPendingChangesRef.current = false;
+      } else if (res.status === 401) {
+        // Staff credentials needed or expired; keep local data safe
+        setSyncStatus('offline');
+      } else {
+        setSyncStatus('offline');
+      }
+    } catch {
+      setSyncStatus('offline');
+    }
+  }, [getCurrentPayload]);
+
+  // 6. Debounced Push Worker (Batches multiple quick local mutations)
+  const debouncedPushToServer = useCallback((customPayload?: any) => {
+    if (syncDebounceTimerRef.current) {
+      clearTimeout(syncDebounceTimerRef.current);
+    }
+    syncDebounceTimerRef.current = setTimeout(() => {
+      pushToServer(customPayload);
+    }, 400);
+  }, [pushToServer]);
+
+  // 7. Force manual sync on demand
+  const forceSync = useCallback(async () => {
+    await pushToServer();
+  }, [pushToServer]);
+
+  // 8. Smart Server State Merger (Never stomps on local mutations)
+  const applyServerState = useCallback((incoming: any) => {
+    if (!incoming || typeof incoming !== 'object') return;
+
+    // Protection: If local changes happened within 10 seconds and have not synced, do not overwrite sessions!
+    const isRecentlyMutated = hasPendingChangesRef.current && (Date.now() - lastMutationTimeRef.current < 10000);
+
+    isIncomingUpdate.current = true;
+
+    // --- SESSIONS MERGE (CRITICAL) ---
+    // Rule: Once a session is completed locally, an incoming server 'active' status MUST NEVER revert it back to active!
+    setSessions((prevSessions) => {
+      if (!Array.isArray(incoming.sessions)) return prevSessions;
+
+      const localMap = new Map<string, GameSession>();
+      prevSessions.forEach((s) => localMap.set(s.id, s));
+
+      const mergedMap = new Map<string, GameSession>();
+
+      // Keep all local sessions first
+      prevSessions.forEach((s) => {
+        mergedMap.set(s.id, s);
+      });
+
+      // Integrate server sessions
+      incoming.sessions.forEach((srvSession: GameSession) => {
+        const locSession = localMap.get(srvSession.id);
+        const isLocallyCompleted = completedSessionsRef.current.has(srvSession.id) || (locSession && locSession.status === 'completed');
+
+        if (!locSession) {
+          // Session only on server
+          if (!completedSessionsRef.current.has(srvSession.id)) {
+            mergedMap.set(srvSession.id, srvSession);
+          }
+        } else {
+          // Session in both
+          if (isLocallyCompleted) {
+            // Keep local completed session! Do NOT resurrect as active!
+            mergedMap.set(srvSession.id, locSession);
+          } else if (srvSession.status === 'completed') {
+            // Server completed it, accept completed
+            mergedMap.set(srvSession.id, srvSession);
+          } else {
+            // Both active: merge orders
+            const locOrderIds = new Set(locSession.orders.map((o) => o.id));
+            const extraOrders = (srvSession.orders || []).filter((o) => !locOrderIds.has(o.id));
+            mergedMap.set(srvSession.id, {
+              ...locSession,
+              orders: [...locSession.orders, ...extraOrders],
+            });
+          }
+        }
+      });
+
+      const finalSessions = Array.from(mergedMap.values());
+      sessionsRef.current = finalSessions;
+      return finalSessions;
+    });
+
+    // --- DEVICES MERGE ---
+    // Rule: Derive device status strictly from merged sessions: If no active session exists for device, it MUST be available!
+    setDevices((prevDevices) => {
+      const baseDevices = Array.isArray(incoming.devices) && incoming.devices.length > 0 ? incoming.devices : prevDevices;
+      const activeDeviceIds = new Set(
+        sessionsRef.current
+          .filter((s) => s.status === 'active' && !completedSessionsRef.current.has(s.id))
+          .map((s) => s.deviceId)
+      );
+
+      const finalDevices = baseDevices.map((d: Device) => ({
+        ...d,
+        status: activeDeviceIds.has(d.id) ? 'busy' : (d.status === 'maintenance' ? 'maintenance' : 'available'),
+      }));
+      devicesRef.current = finalDevices;
+      return finalDevices;
+    });
+
+    // --- EXPENSES MERGE ---
+    setExpenses((prevExp) => {
+      if (!Array.isArray(incoming.expenses)) return prevExp;
+      const localExpIds = new Set(prevExp.map((e) => e.id));
+      const newFromSrv = incoming.expenses.filter((e: Expense) => !localExpIds.has(e.id));
+      return [...prevExp, ...newFromSrv];
+    });
+
+    // Non-conflicting entities
+    if (!isRecentlyMutated) {
+      if (Array.isArray(incoming.games)) setGames(incoming.games);
+      if (Array.isArray(incoming.menuItems)) setMenuItems(incoming.menuItems);
+      if (Array.isArray(incoming.customers)) setCustomers(incoming.customers);
+      if (Array.isArray(incoming.maintenance)) setMaintenance(incoming.maintenance);
+      if (Array.isArray(incoming.tournaments)) setTournaments(incoming.tournaments);
+      if (incoming.currentShift) setCurrentShift(incoming.currentShift);
+      if (incoming.settings) setSettings(incoming.settings);
+      if (incoming.theme) {
+        setTheme(incoming.theme);
+        applyThemeToDocument(incoming.theme);
+      }
+    }
+
+    setIsLoaded(true);
+
+    // Update local storage with safe merged state
+    try {
+      const mergedPayload = {
+        devices: devicesRef.current,
+        games: incoming.games || games,
+        menuItems: incoming.menuItems || menuItems,
+        sessions: sessionsRef.current,
+        expenses: incoming.expenses || expenses,
+        customers: incoming.customers || customers,
+        maintenance: incoming.maintenance || maintenance,
+        tournaments: incoming.tournaments || tournaments,
+        currentShift: incoming.currentShift || currentShift,
+        settings: incoming.settings || settings,
+        auth: authSettings,
+        theme: incoming.theme || theme,
+        _updatedAt: Date.now(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedPayload));
+    } catch {}
+  }, [authSettings, currentShift, customers, expenses, games, maintenance, menuItems, settings, theme, tournaments]);
+
+  // 9. Sync & Event Source Initialization
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+    let pollInterval: NodeJS.Timeout | null = null;
+
+    // Cross-tab broadcast synchronization
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      try {
+        const bc = new BroadcastChannel('clash_realtime_sync');
+        bc.onmessage = (event) => {
+          if (event.data) {
+            applyServerState(event.data);
+          }
+        };
+        broadcastChannelRef.current = bc;
+      } catch {}
+    }
+
+    // Initial server fetch
+    fetch('/api/lounge')
+      .then((res) => res.json())
+      .then((data) => {
+        applyServerState(data);
+      })
+      .catch(() => {
+        // Fallback to offline state
+        setSyncStatus('offline');
+      });
+
+    // SSE connection
+    try {
+      eventSource = new EventSource('/api/lounge/events');
+      eventSource.onmessage = (event) => {
+        try {
+          const parsed = JSON.parse(event.data);
+          applyServerState(parsed);
+        } catch {}
+      };
+    } catch {}
+
+    // Polling heartbeat every 12 seconds
+    pollInterval = setInterval(() => {
+      fetch('/api/lounge')
+        .then((res) => res.json())
+        .then((data) => {
+          applyServerState(data);
+        })
+        .catch(() => {
+          setSyncStatus('offline');
+        });
+    }, 12000);
+
+    return () => {
+      if (eventSource) eventSource.close();
+      if (pollInterval) clearInterval(pollInterval);
+      if (broadcastChannelRef.current) {
+        broadcastChannelRef.current.close();
+        broadcastChannelRef.current = null;
+      }
+    };
+  }, [applyServerState]);
+
+  // 10. Local Mutation Observer (Synchronous Local Persistence + Cross-tab Broadcast + Debounced Server Sync)
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (isIncomingUpdate.current) {
+      isIncomingUpdate.current = false;
+      return;
+    }
+
+    const payload = getCurrentPayload();
+
+    // 1. Synchronous disk write to localStorage (Guaranteed 0ms offline safety)
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    } catch {}
+
+    // 2. Broadcast to other open tabs
     if (broadcastChannelRef.current) {
       try {
         broadcastChannelRef.current.postMessage(payload);
       } catch {}
     }
 
-    // 2. Save to local storage for offline resilience
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {}
+    // 3. Flag unsynced mutation
+    hasPendingChangesRef.current = true;
+    lastMutationTimeRef.current = Date.now();
 
-    // 3. Sync to central Next.js server (Authenticated Staff/Admin/IT only)
-    if (currentRole === 'admin' || currentRole === 'it') {
-      fetch('/api/lounge', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      }).catch((err) => console.error('Failed to sync to central server:', err));
-    }
-  }, [devices, games, menuItems, sessions, expenses, customers, maintenance, tournaments, currentShift, settings, authSettings, theme, isLoaded, currentRole]);
+    // 4. Trigger debounced background sync
+    debouncedPushToServer(payload);
+  }, [devices, games, menuItems, sessions, expenses, customers, maintenance, tournaments, currentShift, settings, authSettings, theme, isLoaded, getCurrentPayload, debouncedPushToServer]);
+
+  // ==========================================
+  // STATE ACTION METHODS
+  // ==========================================
 
   const getActiveSessionForDevice = (deviceId: string) => {
-    return sessions.find((s) => s.deviceId === deviceId && s.status === 'active');
+    return sessions.find(
+      (s) => s.deviceId === deviceId && s.status === 'active' && !completedSessionsRef.current.has(s.id)
+    );
   };
 
   const startSession = ({
@@ -365,8 +634,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     setSessions((prev) => [newSession, ...prev]);
-
-    // Update device status to busy
     setDevices((prev) =>
       prev.map((d) => (d.id === deviceId ? { ...d, status: 'busy' } : d))
     );
@@ -388,14 +655,12 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     const endTime = new Date().toISOString();
 
-    // 1. Calculate raw subtotal with zero discount
+    // 1. Calculate live totals
     const tempUndiscounted = { ...session, endTime, discount: 0 };
     const rawStats = calculateSessionLiveStats(tempUndiscounted, undefined, settings);
     const subtotal = rawStats.timeCost + rawStats.ordersCost;
 
-    // 2. Strictly sanitize and cap discount: 0 <= discount <= subtotal
     const safeDiscount = sanitizeDiscount(discount, subtotal);
-
     const tempSessionWithEnd = { ...session, endTime, discount: safeDiscount };
     const stats = calculateSessionLiveStats(tempSessionWithEnd, undefined, settings);
 
@@ -411,17 +676,26 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       paymentMethod,
     };
 
-    // Update session
+    // 2. CRITICAL: Register in permanent local completed set to prevent server resurrection
+    completedSessionsRef.current.add(sessionId);
+    try {
+      localStorage.setItem(
+        COMPLETED_SESSIONS_KEY,
+        JSON.stringify(Array.from(completedSessionsRef.current))
+      );
+    } catch {}
+
+    // 3. Update local session state
     setSessions((prev) =>
       prev.map((s) => (s.id === sessionId ? completedSession : s))
     );
 
-    // Free the device
+    // 4. Free device immediately
     setDevices((prev) =>
       prev.map((d) => (d.id === session.deviceId ? { ...d, status: 'available' } : d))
     );
 
-    // Update loyalty points if customer phone is provided
+    // 5. Loyalty points
     if (session.customerPhone) {
       const hoursPlayed = Math.max(1, Math.round(stats.exactMinutes / 60));
       const earnedPoints = hoursPlayed * 10;
@@ -487,7 +761,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
-    // Deduct stock
     setMenuItems((prev) =>
       prev.map((m) => (m.id === menuItemId ? { ...m, stock: Math.max(0, m.stock - safeQty) } : m))
     );
@@ -501,7 +774,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (s.id === sessionId) {
           const target = s.orders.find((o) => o.id === orderItemId);
           if (target) {
-            // restore stock
             setMenuItems((mPrev) =>
               mPrev.map((m) =>
                 m.id === target.menuItemId ? { ...m, stock: m.stock + target.quantity } : m
@@ -568,7 +840,6 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         });
         total += itemPrice * safeQty;
 
-        // deduct stock
         setMenuItems((prev) =>
           prev.map((menu) =>
             menu.id === it.menuItemId ? { ...menu, stock: Math.max(0, menu.stock - safeQty) } : menu
@@ -605,10 +876,7 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const addExpense = (expense: Omit<Expense, 'id' | 'date'>) => {
     const sanitized = sanitizeExpenseInput(expense);
-    if (!sanitized) {
-      console.warn('Invalid expense rejected: amount must be strictly greater than 0');
-      return;
-    }
+    if (!sanitized) return;
 
     const newExp: Expense = {
       ...sanitized,
@@ -707,13 +975,11 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const safeActualCash = sanitizeShiftCash(actualClosingCash);
     const shiftStartTime = new Date(currentShift.openedAt).getTime();
     
-    // Calculate total revenue since shift opened
     const shiftSessions = sessions.filter(
       (s) => s.status === 'completed' && new Date(s.endTime || s.startTime).getTime() >= shiftStartTime
     );
     const revenue = shiftSessions.reduce((sum, s) => sum + Math.max(0, s.grandTotal || 0), 0);
 
-    // Calculate shift expenses
     const shiftExpenses = expenses.filter(
       (e) => new Date(e.date).getTime() >= shiftStartTime
     );
@@ -786,6 +1052,7 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
   };
 
+  // Auth Operations
   const login = async (password: string) => {
     if (!password) {
       return { success: false, error: 'Please enter your password.' };
@@ -801,8 +1068,14 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (res.ok && data.success) {
         setCurrentRole(data.role);
         try {
-          localStorage.setItem('clash_auth_role', data.role);
+          localStorage.setItem(AUTH_ROLE_KEY, data.role);
+          if (data.token) {
+            localStorage.setItem(AUTH_TOKEN_KEY, data.token);
+          }
         } catch {}
+
+        // Push pending mutations right away now that we are authenticated
+        debouncedPushToServer();
         return { success: true, role: data.role as UserRole };
       } else {
         return { success: false, error: data.error || 'Authentication failed.' };
@@ -818,16 +1091,21 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch {}
     setCurrentRole('guest');
     try {
-      localStorage.removeItem('clash_auth_role');
+      localStorage.removeItem(AUTH_ROLE_KEY);
+      localStorage.removeItem(AUTH_TOKEN_KEY);
     } catch {}
   };
 
   const updateAdminPassword = async (newPassword: string) => {
     if (!newPassword || newPassword.trim().length < 3) return false;
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/auth/update-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: JSON.stringify({ target: 'admin', newPassword: newPassword.trim() }),
       });
@@ -841,9 +1119,13 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const updateITPassword = async (newPassword: string) => {
     if (!newPassword || newPassword.trim().length < 3) return false;
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch('/api/auth/update-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: JSON.stringify({ target: 'it', newPassword: newPassword.trim() }),
       });
@@ -901,6 +1183,9 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         logout,
         updateAdminPassword,
         updateITPassword,
+        syncStatus,
+        isOnline,
+        forceSync,
         startSession,
         endSession,
         addOrderToSession,

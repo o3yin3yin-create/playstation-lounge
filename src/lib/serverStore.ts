@@ -507,6 +507,20 @@ class CentralLoungeStore {
         grandTotal: sanitizeMoney(s.grandTotal, 0, 100_000),
         hourlyRate: sanitizeMoney(s.hourlyRate, 0, 50_000),
       }));
+
+      // Synchronize device status with sessions: free devices whose sessions are closed
+      const activeDeviceIds = new Set(
+        safeUpdates.sessions
+          .filter((s: GameSession) => s.status === 'active')
+          .map((s: GameSession) => s.deviceId)
+      );
+      const targetDevices = Array.isArray(safeUpdates.devices) ? safeUpdates.devices : this.state.devices;
+      if (Array.isArray(targetDevices)) {
+        safeUpdates.devices = targetDevices.map((d: Device) => ({
+          ...d,
+          status: activeDeviceIds.has(d.id) ? 'busy' : (d.status === 'maintenance' ? 'maintenance' : 'available'),
+        }));
+      }
     }
 
     // 6. Financial integrity validation on expenses
