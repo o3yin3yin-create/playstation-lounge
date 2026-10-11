@@ -294,21 +294,21 @@ export const ClashHome: React.FC = () => {
 
       {addOrderSession && (
         <AddOrderModal
-          session={addOrderSession}
+          session={sessions.find((s) => s.id === addOrderSession.id) || addOrderSession}
           onClose={() => setAddOrderSession(null)}
         />
       )}
 
       {transferSession && (
         <TransferSessionModal
-          session={transferSession}
+          session={sessions.find((s) => s.id === transferSession.id) || transferSession}
           onClose={() => setTransferSession(null)}
         />
       )}
 
       {checkoutSession && (
         <CheckoutModal
-          session={checkoutSession}
+          session={sessions.find((s) => s.id === checkoutSession.id) || checkoutSession}
           onClose={() => setCheckoutSession(null)}
         />
       )}

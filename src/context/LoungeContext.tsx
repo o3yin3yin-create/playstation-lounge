@@ -753,6 +753,15 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSessions((prev) =>
       prev.map((s) => {
         if (s.id === sessionId) {
+          const existingIdx = s.orders.findIndex((o) => o.menuItemId === menuItemId);
+          if (existingIdx >= 0) {
+            const updated = [...s.orders];
+            updated[existingIdx] = {
+              ...updated[existingIdx],
+              quantity: updated[existingIdx].quantity + safeQty,
+            };
+            return { ...s, orders: updated };
+          }
           return {
             ...s,
             orders: [...s.orders, newOrder],
@@ -769,6 +778,15 @@ export const LoungeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setSessions((prev) =>
       prev.map((s) => {
         if (s.id === sessionId) {
+          const target = s.orders.find((o) => o.id === orderItemId);
+          if (target && target.quantity > 1) {
+            return {
+              ...s,
+              orders: s.orders.map((o) =>
+                o.id === orderItemId ? { ...o, quantity: o.quantity - 1 } : o
+              ),
+            };
+          }
           return {
             ...s,
             orders: s.orders.filter((o) => o.id !== orderItemId),
